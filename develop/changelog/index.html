@@ -2473,6 +2473,9 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
+<p>XLA validation, test, and the optional train-split (<code>compute_train_metrics=True</code>) evaluation callbacks now materialize each model forward once before COCO metric code reads individual tensors on the host, avoiding repeated compilation of overlapping lazy-graph fragments. On a Cloud TPU v5e-1 (<code>RFDETRNano</code>, resolution 384, batch size 2, five training batches with train-split metrics disabled and two validation batches), median end-to-end fit time across five fresh-process pairs fell from 310.2 s to 232.0 s (-25.2%); validation time fell from 105.8 s to 28.1 s (-73.4%), while metrics, model tensors, and checkpoint tensors remained identical. The train-split callback shares the same barrier but was not separately benchmarked. (<a href="https://github.com/roboflow/rf-detr/issues/1058">#1058</a>)</p>
+</li>
+<li>
 <p>Multi-GPU keypoint training with <code>grad_accum_steps &gt; 1</code> now synchronizes gradients once per optimizer step instead of once per microbatch, avoiding redundant DDP reductions.</p>
 </li>
 <li>
@@ -2482,6 +2485,9 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <h3 id="deprecated">Deprecated<a class="headerlink" href="#deprecated" title="Permanent link">&para;</a></h3>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
+<li>
+<p>TPU/XLA training with EMA now keeps its control-flow counter on the host and queues parameter averaging inside the optimizer step, before Lightning's existing XLA step marker. This prevents the deleted-buffer failure seen after a few optimizer steps without adding another per-step synchronization; CPU and CUDA EMA updates are unchanged. (<a href="https://github.com/roboflow/rf-detr/issues/1058">#1058</a>)</p>
+</li>
 <li>
 <p>Segmentation validation/test mAP no longer risks CUDA OOM in <code>_compute_mask_iou</code>'s boolean-to-float32 mask conversion, which previously materialized every matched prediction of a class at once (<code>N x H x W</code>, full image resolution by default) and every ground truth at once (<code>M x H x W</code>) — a densely annotated class can make <code>M</code> comparable to <code>N</code>, since GT count is bounded only by the image's own annotations, not by <code>eval_max_dets</code>. Both sides are now converted 32 rows at a time. For any nonzero prediction and ground-truth count, output is unchanged — bit-identical to the previous implementation; for a zero count on either side, the previous implementation raised an ambiguous-reshape <code>RuntimeError</code> instead of returning a value, and now returns an empty result. (<a href="https://github.com/roboflow/rf-detr/issues/1460">#1460</a>)</p>
 </li>
