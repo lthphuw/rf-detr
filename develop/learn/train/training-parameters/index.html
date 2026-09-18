@@ -105,7 +105,7 @@
   
   
   
-  <meta property="article:modified_time" content="2026-09-14T17:01:22">
+  <meta property="article:modified_time" content="2026-09-17T16:52:00">
   
   <script type="application/ld+json">
   {
@@ -120,7 +120,7 @@
     "inLanguage": "en",
     "keywords": "RF-DETR, rfdetr, object detection, instance segmentation, computer vision, Roboflow",
     "datePublished": "2025-03-01",
-    "dateModified": "2026-09-14T17:01:22",
+    "dateModified": "2026-09-17T16:52:00",
     "image": "https://storage.googleapis.com/com-roboflow-marketing/rf-detr/rf_detr_1-4_latency_accuracy_object_detection.png",
     "author": {"@type": "Organization", "name": "Roboflow", "url": "https://roboflow.com"},
     "publisher": {"@type": "Organization", "name": "Roboflow", "url": "https://roboflow.com"},
@@ -3354,6 +3354,18 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <td>Device to run training on. <code>None</code> means auto-detected by PyTorch Lightning. Options: <code>"cuda"</code>, <code>"cpu"</code>, <code>"mps"</code> (Apple Silicon).</td>
 </tr>
 <tr>
+<td><code>compile</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td><strong>Constructor-only parameter.</strong> Compile the detector with <code>torch.compile</code>.</td>
+</tr>
+<tr>
+<td><code>cuda_graphs</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td><strong>Constructor-only parameter.</strong> Capture and replay the detection training forward on one CUDA GPU with BF16 precision. Each input shape pays a first-use capture cost and retains graph memory. Unsupported configurations use eager training with a warning. Combined with <code>compile=True</code>, replay is delegated to Inductor CUDA graph trees (single-GPU detection, no gradient accumulation); capture errors stop training and require a process restart before retrying eagerly. See <a href="../advanced/#cuda-graph-training">Advanced Training</a>.</td>
+</tr>
+<tr>
 <td><code>gradient_checkpointing</code></td>
 <td><code>bool</code></td>
 <td><code>False</code></td>
@@ -3362,7 +3374,8 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </tbody>
 </table>
 <h3 id="training-precision">Training precision<a class="headerlink" href="#training-precision" title="Permanent link">&para;</a></h3>
-<p><code>amp_dtype</code> accepts <code>"auto"</code>, <code>"bf16"</code>, <code>"fp16"</code>, or <code>"fp8"</code>. FP8 selects Lightning's Transformer Engine precision plugin, which replaces eligible linear and layer-normalization layers while retaining BF16 weights. FP8 requires a Transformer Engine-supported NVIDIA GPU and <code>model_config.amp=True</code>; it is rejected for CPU, MPS, TPU/XLA, FSDP, and DeepSpeed. Use DDP for multi-GPU FP8 training. Hardware support and speedups vary, so benchmark the exact model and GPU before adopting it.</p>
+<p><code>amp_dtype</code> accepts <code>None</code>, <code>"auto"</code>, <code>"bf16"</code>, <code>"fp16"</code>, or <code>"fp8"</code>, and is the single setting controlling mixed precision. Pass <code>amp_dtype=None</code> to train in full FP32. FP8 selects Lightning's Transformer Engine precision plugin, which replaces eligible linear and layer-normalization layers while retaining BF16 weights. FP8 requires a Transformer Engine-supported NVIDIA GPU; it is rejected for CPU, MPS, TPU/XLA, FSDP, and DeepSpeed. Use DDP for multi-GPU FP8 training. Hardware support and speedups vary, so benchmark the exact model and GPU before adopting it.</p>
+<p>The constructor-only <code>amp</code> boolean is deprecated: it is consulted only when <code>amp_dtype</code> has its default value <code>"auto"</code>, and any non-default <code>amp_dtype</code> overrides it. Replace <code>amp=False</code> with <code>amp_dtype=None</code>.</p>
 <p>FP8 requires an explicit integer <code>batch_size</code>. Automatic batch sizing probes an unconverted model and is rejected with <code>amp_dtype="fp8"</code>; BF16/FP16 retain automatic sizing.</p>
 <p>See <a href="../advanced/#fp8-training-on-nvidia-cuda">Advanced Training — FP8 on NVIDIA CUDA</a> for the <code>cuda</code> extra, CUDA-version compatibility, an environment check, and troubleshooting. The extra does not enable FP8 automatically and does not support Apple MPS.</p>
 <h2 id="ema-exponential-moving-average">EMA (Exponential Moving Average)<a class="headerlink" href="#ema-exponential-moving-average" title="Permanent link">&para;</a></h2>
@@ -3610,9 +3623,9 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </tr>
 <tr>
 <td><code>eval_backend</code></td>
-<td><code>Literal["hotcoco","faster_coco_eval"]</code></td>
+<td><code>Literal["hotcoco","faster_coco_eval","ufcoco"]</code></td>
 <td><code>"hotcoco"</code></td>
-<td>COCO evaluation backend for detection and segmentation mAP. Both ship with <code>rfdetr[train]</code> and return identical metrics; <code>"faster_coco_eval"</code> selects the previous, slower evaluator.</td>
+<td>COCO evaluation backend for detection and segmentation mAP. All three ship with <code>rfdetr[train]</code> and return identical metrics; <code>"faster_coco_eval"</code> selects the previous, slower evaluator and <code>"ufcoco"</code> selects ultrafast-pycocotools.</td>
 </tr>
 <tr>
 <td><code>eval_base_model</code></td>
@@ -3649,6 +3662,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>eval_interval</code> controls validation frequency, not the cost of a validation epoch: non-evaluation epochs skip the complete validation loop, while the final epoch always evaluates.</li>
 <li>Lowering <code>eval_max_dets</code> can reduce detection/segmentation evaluation work, but it also changes AP and AR semantics. Keypoint evaluation keeps COCO <code>maxDets=20</code>.</li>
 <li><code>eval_backend</code> selects the COCO evaluator. The default <code>"hotcoco"</code> (<a href="https://github.com/derekallman/hotcoco">hotcoco</a>) ships with <code>rfdetr[train]</code>; <code>"faster_coco_eval"</code> restores the previous evaluator. Metrics are identical, not merely close: the parity tests compare every aggregate, per-class and class-ID output of both backends for box-only and box-plus-mask evaluation and require exact equality. The knob changes the cost of <code>compute()</code>, not the validation forward pass that usually dominates a validation epoch, so it matters most on large validation sets. On synthetic COCO-val-shaped state (5,000 images, 36.6k ground-truth boxes, 300 detections per image, 80 classes, <code>eval_max_dets=500</code>) one macOS-CPU <code>compute()</code> took 6.2 s on <code>faster_coco_eval</code> against 1.1 s on <code>hotcoco</code>. Keypoint evaluation uses its own OKS path and is unaffected, as is the ONNX/TensorRT benchmark evaluator.</li>
+<li><code>eval_backend="ufcoco"</code> selects <a href="https://github.com/developer0hye/ultrafast-pycocotools">ultrafast-pycocotools</a>, a Rust evaluator that reproduces pycocotools' precision, recall and score arrays byte for byte. It ships with <code>rfdetr[train]</code> like the other two backends; pass <code>eval_backend="ufcoco"</code> to <code>model.train(...)</code> or <code>model.evaluate(...)</code>. The selection reaches the validation, train-split and EMA metrics alike, and the parity tests hold it to the same exact equality against <code>faster_coco_eval</code> as <code>hotcoco</code>, for box-only and box-plus-mask evaluation at <code>eval_max_dets</code> 100 and 500.</li>
 </ul>
 <h2 id="keypoint-preview-parameters">Keypoint Preview Parameters<a class="headerlink" href="#keypoint-preview-parameters" title="Permanent link">&para;</a></h2>
 <p>These parameters apply when training <code>RFDETRKeypointPreview</code> on COCO keypoint annotations or Ultralytics YOLO pose labels.</p>
@@ -3822,7 +3836,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <td><code>fp16_eval</code></td>
 <td><code>bool</code></td>
 <td><code>False</code></td>
-<td>Run evaluation passes in FP16 precision. Reduces memory usage but may lower numerical precision.</td>
+<td><strong>Deprecated, no effect.</strong> Evaluation precision follows <code>amp_dtype</code>; set <code>amp_dtype="fp16"</code> instead. Removed in v1.14.</td>
 </tr>
 <tr>
 <td><code>compute_val_loss</code></td>
@@ -3974,6 +3988,18 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <td>Enable Exponential Moving Average of weights.</td>
 </tr>
 <tr>
+<td><code>compile</code></td>
+<td>bool</td>
+<td>False</td>
+<td>Constructor-only <code>torch.compile</code> training optimization.</td>
+</tr>
+<tr>
+<td><code>cuda_graphs</code></td>
+<td>bool</td>
+<td>False</td>
+<td>Constructor-only, single-GPU CUDA graph replay for detection training.</td>
+</tr>
+<tr>
 <td><code>gradient_checkpointing</code></td>
 <td>bool</td>
 <td>False</td>
@@ -4065,9 +4091,9 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </tr>
 <tr>
 <td><code>eval_backend</code></td>
-<td><code>Literal["hotcoco","faster_coco_eval"]</code></td>
+<td><code>Literal["hotcoco","faster_coco_eval","ufcoco"]</code></td>
 <td>"hotcoco"</td>
-<td>COCO evaluation backend; <code>"faster_coco_eval"</code> selects the previous, slower evaluator.</td>
+<td>COCO evaluation backend; <code>"faster_coco_eval"</code> selects the previous, slower evaluator and <code>"ufcoco"</code> for ultrafast-pycocotools.</td>
 </tr>
 <tr>
 <td><code>eval_base_model</code></td>
@@ -4175,7 +4201,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <td><code>fp16_eval</code></td>
 <td>bool</td>
 <td>False</td>
-<td>Run evaluation in FP16 precision to reduce memory usage.</td>
+<td><strong>Deprecated, no effect.</strong> Evaluation precision follows <code>amp_dtype</code>; set <code>amp_dtype="fp16"</code> instead.</td>
 </tr>
 <tr>
 <td><code>pin_memory</code></td>
@@ -4229,7 +4255,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="September 14, 2026 17:01:22 UTC">2026-09-14 17:01:22</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="September 17, 2026 16:52:00 UTC">2026-09-17 16:52:00</span>
   </span>
 
     

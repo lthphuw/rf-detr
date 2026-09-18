@@ -6603,8 +6603,8 @@ https://github.com/Lightning-AI/pytorch-lightning/issues/19987).</p>
     <div class="doc doc-contents first">
 
         <p>Assemble a PTL <code>Trainer</code> with the full RF-DETR callback and logger stack.</p>
-<p>Resolves training precision from <code>model_config.amp</code> and device capability, guards EMA against sharded strategies,
-wires conditional loggers, and applies promoted training knobs (sync_batchnorm, strategy).</p>
+<p>Resolves training precision from <code>train_config.amp_dtype</code> and device capability, guards EMA against sharded
+strategies, wires conditional loggers, and applies promoted training knobs (sync_batchnorm, strategy).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6627,7 +6627,8 @@ wires conditional loggers, and applies promoted training knobs (sync_batchnorm, 
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Training hyperparameter configuration.</p>
+                <p>Training hyperparameter configuration. <code>amp_dtype</code> is the authority for
+precision resolution.</p>
               </div>
             </td>
             <td>
@@ -6643,9 +6644,9 @@ wires conditional loggers, and applies promoted training knobs (sync_batchnorm, 
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Architecture configuration. Used for precision resolution
-(<code>model_config.amp</code>) and to guard against unsupported distributed
-configurations for keypoint models.</p>
+                <p>Architecture configuration. Read for the deprecated <code>amp</code> toggle (a fallback
+only when <code>amp_dtype</code> is left at its default) and to guard against unsupported
+distributed configurations for keypoint models.</p>
               </div>
             </td>
             <td>
@@ -7681,14 +7682,15 @@ forward pass, so both models are evaluated from independent predictions.</p>
 <h2 id="rfdetr.training.callbacks.coco_eval.COCOEvalCallback(eval_backend)" class="doc doc-heading doc-heading-parameter">                  <code>eval_backend</code>
 <a href="#rfdetr.training.callbacks.coco_eval.COCOEvalCallback(eval_backend)" class="headerlink" title="Permanent link">&para;</a></h2>            </td>
             <td>
-                  <code><span title="typing.Literal">Literal</span>[&#39;hotcoco&#39;, &#39;faster_coco_eval&#39;]</code>
+                  <code><span title="rfdetr.config.CocoEvalBackend">CocoEvalBackend</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>COCO evaluation backend, mirroring :attr:<code>~rfdetr.config.TrainConfig.eval_backend</code>. Both
-backends return identical metrics; <code>"hotcoco"</code> is the faster default and <code>"faster_coco_eval"</code> is
-the previous evaluator. Appended after the existing parameters rather than grouped with the other
-evaluation knobs, so that positional callers keep binding the arguments they always did.</p>
+                <p>COCO evaluation backend, mirroring :attr:<code>~rfdetr.config.TrainConfig.eval_backend</code>.
+<code>"hotcoco"</code> is the faster default, <code>"faster_coco_eval"</code> is the previous evaluator and <code>"ufcoco"</code>
+selects ultrafast-pycocotools; all three ship with <code>rfdetr[train]</code> and return identical metrics.
+Appended after the existing parameters rather than grouped with the other evaluation knobs, so that
+positional callers keep binding the arguments they always did.</p>
               </div>
             </td>
             <td>
