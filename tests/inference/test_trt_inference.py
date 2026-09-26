@@ -21,6 +21,7 @@ from PIL import Image
 
 import rfdetr.export.benchmark as benchmark
 from rfdetr.export._tensorrt import inference as trt_inference
+from rfdetr.export._tensorrt.exporter import TensorRTExporter
 from rfdetr.export._tensorrt.inference import TimeProfiler, TRTInference
 from rfdetr.export.benchmark import infer_transforms
 
@@ -194,7 +195,7 @@ class _FakeContext:
     the profile -- a batch below 1 or above the engine's profile maximum, or any other axis differing from the engine's
     -- is refused by returning ``False``, which is how TensorRT reports it instead of raising. ``output_batch`` pins the
     outputs to a batch of their own, modelling an engine whose output batch is not its input batch. The execution calls
-    are plain ``Mock`` s so tests can assert on them.
+    are plain ``Mock`` objects so tests can assert on them.
     """
 
     def __init__(self, engine: _FakeEngine, output_batch: int | None = None) -> None:
@@ -706,21 +707,37 @@ class TestTRTInferenceInputValidation:
         assert misleading_advice not in str(refusal.value)
 
     @pytest.mark.parametrize(
-        ("engine_shape", "shape", "advice"),
+        ("engine_shape", "shape", "export_batch_size"),
         [
-            pytest.param((-1, 3, 8, 8), (5, 3, 8, 8), "Export with a larger max_batch_size", id="dynamic-above-max"),
-            pytest.param((2, 3, 8, 8), (1, 3, 8, 8), "Export with dynamic_batch=True", id="static-other-batch"),
+            pytest.param((-1, 3, 8, 8), (5, 3, 8, 8), 2, id="dynamic-above-max"),
+            pytest.param((2, 3, 8, 8), (3, 3, 8, 8), 2, id="static-larger-batch"),
+            pytest.param((2, 3, 8, 8), (1, 3, 8, 8), 2, id="static-smaller-batch"),
         ],
     )
-    def test_a_batch_refusal_keeps_its_advice(
-        self, engine_shape: tuple[int, ...], shape: tuple[int, ...], advice: str
+    def test_a_batch_refusal_advises_an_export_that_serves_the_refused_batch(
+        self, engine_shape: tuple[int, ...], shape: tuple[int, ...], export_batch_size: int
     ) -> None:
-        """Where only the batch is wrong, the refusal still names the export setting that fixes it (unchanged)."""
+        """The advised settings, added to the original export, pass the TensorRT exporter's checks and fit the batch.
+
+        ``dynamic_batch=True`` alone is refused by that exporter, which needs ``max_batch_size`` and ``batch_size <=
+        max_batch_size``. *export_batch_size* is the ``batch_size`` the engine was exported with: the static engine's
+        own batch, or the fakes' profile ``opt`` for the dynamic one.
+        """
         engine = _FakeEngine({"input": ("input", engine_shape), "dets": ("output", (engine_shape[0], 5, 4))})
         runtime = _runtime_around(engine)
-
-        with pytest.raises(ValueError, match=re.escape(advice)):
+        with pytest.raises(ValueError) as refusal:
             runtime({"input": torch.zeros(shape)})
+        advised = dict(re.findall(r"(dynamic_batch|max_batch_size)=(\w+)", str(refusal.value)))
+
+        exporter = TensorRTExporter(
+            TensorRTExporter.build_config(
+                batch_size=export_batch_size,
+                dynamic_batch=advised["dynamic_batch"] == "True",
+                max_batch_size=int(advised["max_batch_size"]),
+            )
+        )
+
+        assert exporter.config.max_batch_size >= shape[0]
 
     @pytest.mark.parametrize(
         ("shape", "advised"),
@@ -746,7 +763,7 @@ class TestTRTInferenceInputValidation:
         with pytest.raises(ValueError, match=re.escape(str(shape))) as refusal:
             runtime({"input": torch.zeros(shape)})
 
-        assert ("Export with a larger max_batch_size" in str(refusal.value)) is advised
+        assert ("max_batch_size=5" in str(refusal.value)) is advised
 
 
 @pytest.mark.usefixtures("cuda_device_recorder")

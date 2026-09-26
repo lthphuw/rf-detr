@@ -45,6 +45,28 @@ from rfdetr.utilities.logger import get_logger
 logger = get_logger()
 
 
+def _dynamic_batch_advice(max_batch: int) -> str:
+    """Name the ``RFDETR.export`` settings for an engine that serves every batch up to *max_batch*.
+
+    The TensorRT exporter refuses ``dynamic_batch=True`` without ``max_batch_size``, so the advice names both, as
+    settings the caller can pass exactly as written.
+
+    Args:
+        max_batch: The largest batch the re-exported engine has to accept.
+
+    Returns:
+        The advice sentence, with a leading space so it can follow the refusal.
+
+    Examples:
+        >>> _dynamic_batch_advice(5)
+        ' Export with dynamic_batch=True, max_batch_size=5 to serve batches 1 to 5 from one engine.'
+    """
+    return (
+        f" Export with dynamic_batch=True, max_batch_size={max_batch} to serve batches 1 to {max_batch} from one "
+        "engine."
+    )
+
+
 class TRTInference:
     """Run a serialized TensorRT engine on torch tensors that already sit on its CUDA device.
 
@@ -350,8 +372,8 @@ class TRTInference:
             shape: The refused shape.
 
         Returns:
-            The error message, advising a larger ``max_batch_size`` only when the batch is the one axis above its
-            profile range.
+            The error message, advising a re-export with a larger ``max_batch_size`` only when the batch alone exceeds
+            the profile.
         """
         min_shape, _, max_shape = (
             tuple(int(dim) for dim in dims) for dims in self.engine.get_tensor_profile_shape(name, 0)
@@ -368,7 +390,7 @@ class TRTInference:
             )
         )
         if image_fits and shape[BATCH_AXIS] > max_shape[BATCH_AXIS]:
-            message += " Export with a larger max_batch_size."
+            message += _dynamic_batch_advice(shape[BATCH_AXIS])
         return message
 
     def _bind_inputs(self, blob: Mapping[str, Tensor]) -> None:
@@ -404,7 +426,10 @@ class TRTInference:
                     len(shape) == len(binding.shape) and shape[BATCH_AXIS + 1 :] == binding.shape[BATCH_AXIS + 1 :]
                 )
                 if only_batch_differs and shape[BATCH_AXIS] > 0:
-                    message += " Export with dynamic_batch=True to serve a range of batch sizes from one engine."
+                    # The engine's batch is the batch_size it was exported with, and the exporter needs
+                    # batch_size <= max_batch_size, so the bound covers it as well as this batch: re-running the
+                    # original export with the advised settings then passes its checks.
+                    message += _dynamic_batch_advice(max(shape[BATCH_AXIS], binding.shape[BATCH_AXIS]))
                 raise ValueError(message)
             self.bindings_addr[name] = tensor.data_ptr()
 
