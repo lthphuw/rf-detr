@@ -1309,6 +1309,62 @@ APIs described here may change or may never ship in a release, so use the <a hre
   
   
   
+    <li class="md-nav__item">
+      <a href="../../exports/basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exports/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -1323,10 +1379,10 @@ APIs described here may change or may never ship in a release, so use the <a hre
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_4_2" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_4_4" >
         
           
-          <label class="md-nav__link" for="__nav_2_4_2" id="__nav_2_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_4_4" id="__nav_2_4_4_label" tabindex="0">
             
   
   
@@ -1344,8 +1400,8 @@ APIs described here may change or may never ship in a release, so use the <a hre
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_4_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2613,6 +2669,17 @@ APIs described here may change or may never ship in a release, so use the <a hre
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;train_config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rfdetr.training.module_model.RFDETRModelModule(load_encoder_weights)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;load_encoder_weights
       
     </span>
   </a>
@@ -4158,6 +4225,17 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </li>
       
         <li class="md-nav__item">
+  <a href="#rfdetr.training.module_model.RFDETRModelModule(load_encoder_weights)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;load_encoder_weights
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#rfdetr.training.module_model.RFDETRModelModule-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5574,6 +5652,23 @@ APIs described here may change or may never ship in a release, so use the <a hre
                 <em>required</em>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+<h2 id="rfdetr.training.module_model.RFDETRModelModule(load_encoder_weights)" class="doc doc-heading doc-heading-parameter">                  <code>load_encoder_weights</code>
+<a href="#rfdetr.training.module_model.RFDETRModelModule(load_encoder_weights)" class="headerlink" title="Permanent link">&para;</a></h2>            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Fetch the encoder's upstream pretrained weights when <code>model_config</code> has no
+<code>pretrain_weights</code>. Pass <code>False</code> when every weight is replaced right after construction.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -5600,7 +5695,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 
 
 <h3 id="rfdetr.training.module_model.RFDETRModelModule.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="n">train_config</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="n">train_config</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">load_encoder_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#rfdetr.training.module_model.RFDETRModelModule.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
 

@@ -6,19 +6,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Export RF-DETR models directly to native CoreML (`.mlpackage`) for Xcode / Apple-platform deployment.">
+        <meta name="description" content="Export basics for RF-DETR — install the export extras, run model.export(), find the output files, and run inference with the exported model.">
       
       
         <meta name="author" content="Roboflow">
       
       
-        <link rel="canonical" href="https://rfdetr.roboflow.com/develop/exports/coreml/">
+        <link rel="canonical" href="https://rfdetr.roboflow.com/develop/exports/basics/">
       
       
-        <link rel="prev" href="../executorch/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../coreai/">
+        <link rel="next" href="../advanced/">
       
       
         
@@ -31,7 +31,7 @@
   
     
       
-        <title>CoreML - RF-DETR</title>
+        <title>Basics - RF-DETR</title>
       
     
   
@@ -86,10 +86,10 @@
   
   
   
-  <meta property="og:title" content="CoreML - RF-DETR">
-  <meta property="og:description" content="Export RF-DETR models directly to native CoreML (`.mlpackage`) for Xcode / Apple-platform deployment.">
+  <meta property="og:title" content="Basics - RF-DETR">
+  <meta property="og:description" content="Export basics for RF-DETR — install the export extras, run model.export(), find the output files, and run inference with the exported model.">
   <meta property="og:type" content="article">
-  <meta property="og:url" content="https://rfdetr.roboflow.com/develop/exports/coreml/">
+  <meta property="og:url" content="https://rfdetr.roboflow.com/develop/exports/basics/">
   <meta property="og:image" content="https://storage.googleapis.com/com-roboflow-marketing/rf-detr/rf_detr_1-4_latency_accuracy_object_detection.png">
   <meta property="og:image:width" content="840">
   <meta property="og:image:height" content="630">
@@ -97,34 +97,34 @@
   
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@roboflow">
-  <meta name="twitter:title" content="CoreML - RF-DETR">
-  <meta name="twitter:description" content="Export RF-DETR models directly to native CoreML (`.mlpackage`) for Xcode / Apple-platform deployment.">
+  <meta name="twitter:title" content="Basics - RF-DETR">
+  <meta name="twitter:description" content="Export basics for RF-DETR — install the export extras, run model.export(), find the output files, and run inference with the exported model.">
   <meta name="twitter:image" content="https://storage.googleapis.com/com-roboflow-marketing/rf-detr/rf_detr_1-4_latency_accuracy_object_detection.png">
 
   
   
   
   
-  <meta property="article:modified_time" content="2026-10-06T14:26:55">
+  <meta property="article:modified_time" content="2026-10-06T19:23:17">
   
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    "headline": "CoreML",
-    "description": "Export RF-DETR models directly to native CoreML (`.mlpackage`) for Xcode / Apple-platform deployment.",
-    "url": "https://rfdetr.roboflow.com/develop/exports/coreml/",
+    "headline": "Basics",
+    "description": "Export basics for RF-DETR \u2014 install the export extras, run model.export(), find the output files, and run inference with the exported model.",
+    "url": "https://rfdetr.roboflow.com/develop/exports/basics/",
     "isPartOf": {"@id": "https://rfdetr.roboflow.com/develop#website"},
     "about": {"@id": "https://rfdetr.roboflow.com/develop#software"},
     "proficiencyLevel": "Beginner to advanced",
     "inLanguage": "en",
     "keywords": "RF-DETR, rfdetr, object detection, instance segmentation, computer vision, Roboflow",
     "datePublished": "2025-03-01",
-    "dateModified": "2026-10-06T14:26:55",
+    "dateModified": "2026-10-06T19:23:17",
     "image": "https://storage.googleapis.com/com-roboflow-marketing/rf-detr/rf_detr_1-4_latency_accuracy_object_detection.png",
     "author": {"@type": "Organization", "name": "Roboflow", "url": "https://roboflow.com"},
     "publisher": {"@type": "Organization", "name": "Roboflow", "url": "https://roboflow.com"},
-    "mainEntityOfPage": {"@type": "WebPage", "@id": "https://rfdetr.roboflow.com/develop/exports/coreml/"},
+    "mainEntityOfPage": {"@type": "WebPage", "@id": "https://rfdetr.roboflow.com/develop/exports/basics/"},
     "speakable": {
       "@type": "SpeakableSpecification",
       "cssSelector": [".md-content h1", ".md-typeset > p:first-child"]
@@ -146,14 +146,14 @@
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Export Formats",
-        "item": "https://rfdetr.roboflow.com/develop/exports/onnx/"
+        "name": "Export Model",
+        "item": "https://rfdetr.roboflow.com/develop/exports/"
       },
       {
         "@type": "ListItem",
         "position": 3,
-        "name": "CoreML",
-        "item": "https://rfdetr.roboflow.com/develop/exports/coreml/"
+        "name": "Basics",
+        "item": "https://rfdetr.roboflow.com/develop/exports/basics/"
       }
       
     ]
@@ -174,7 +174,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#native-coreml-export-mlpackage" class="md-skip">
+        <a href="#export-basics" class="md-skip">
           Skip to content
         </a>
       
@@ -250,7 +250,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 
             </a>
             
-              CoreML
+              Basics
             
           </span>
         </div>
@@ -1312,10 +1312,37 @@ APIs described here may change or may never ship in a release, so use the <a hre
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../basics/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1331,6 +1358,153 @@ APIs described here may change or may never ship in a release, so use the <a hre
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Export
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choose-a-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose a Format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#check-the-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check the Export
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-inference-with-inference-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Inference with inference-models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Run Inference with inference-models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-a-pre-trained-rf-detr-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load a Pre-trained RF-DETR Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-a-local-rf-detr-checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load a Local RF-DETR Checkpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#force-tensorrt-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Force TensorRT Backend
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-exported-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Exported Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1368,8 +1542,6 @@ APIs described here may change or may never ship in a release, so use the <a hre
                 
   
   
-    
-  
   
   
     
@@ -1380,11 +1552,13 @@ APIs described here may change or may never ship in a release, so use the <a hre
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4_4" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_4_4" >
         
           
           <label class="md-nav__link" for="__nav_2_4_4" id="__nav_2_4_4_label" tabindex="0">
@@ -1405,7 +1579,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2_4_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1588,37 +1762,10 @@ APIs described here may change or may never ship in a release, so use the <a hre
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CoreML
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../coreml/" class="md-nav__link">
         
   
   
@@ -1634,81 +1781,6 @@ APIs described here may change or may never ship in a release, so use the <a hre
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#basic-coreml-export" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Basic CoreML Export
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compute-precision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compute Precision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#coreml-inference-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CoreML Inference Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#neural-engine-compute-units-and-the-fallback-boundary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Neural Engine, Compute Units, and the Fallback Boundary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2847,10 +2919,10 @@ APIs described here may change or may never ship in a release, so use the <a hre
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        Installation
       
     </span>
   </a>
@@ -2858,10 +2930,10 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </li>
       
         <li class="md-nav__item">
-  <a href="#basic-coreml-export" class="md-nav__link">
+  <a href="#basic-export" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic CoreML Export
+        Basic Export
       
     </span>
   </a>
@@ -2869,10 +2941,10 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </li>
       
         <li class="md-nav__item">
-  <a href="#compute-precision" class="md-nav__link">
+  <a href="#choose-a-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compute Precision
+        Choose a Format
       
     </span>
   </a>
@@ -2880,10 +2952,10 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </li>
       
         <li class="md-nav__item">
-  <a href="#coreml-inference-example" class="md-nav__link">
+  <a href="#check-the-export" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CoreML Inference Example
+        Check the Export
       
     </span>
   </a>
@@ -2891,10 +2963,82 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </li>
       
         <li class="md-nav__item">
-  <a href="#neural-engine-compute-units-and-the-fallback-boundary" class="md-nav__link">
+  <a href="#output-files" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Neural Engine, Compute Units, and the Fallback Boundary
+        Output Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-inference-with-inference-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Inference with inference-models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Run Inference with inference-models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-a-pre-trained-rf-detr-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load a Pre-trained RF-DETR Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-a-local-rf-detr-checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load a Local RF-DETR Checkpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#force-tensorrt-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Force TensorRT Backend
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-exported-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Exported Model
       
     </span>
   </a>
@@ -2921,208 +3065,217 @@ APIs described here may change or may never ship in a release, so use the <a hre
   
 
 
-<h1 id="native-coreml-export-mlpackage">Native CoreML Export (<code>.mlpackage</code>)<a class="headerlink" href="#native-coreml-export-mlpackage" title="Permanent link">&para;</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Experimental — Use with Caution</p>
-<p>Native CoreML export is <strong>experimental and work-in-progress</strong>. <code>dynamic_batch=True</code> is not supported — fixed shapes are required for reliable ANE / GPU scheduling. Export one <code>.mlpackage</code> per batch size instead.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Not the same as the ExecuTorch CoreML backend</p>
-<p><code>format="coreml"</code> exports directly via <code>torch.export</code> + <code>coremltools</code> to a native <code>.mlpackage</code> (mlprogram, iOS 15 / macOS 12 or later; an fp16 bundle returns float32 outputs) — no ONNX and no ExecuTorch runtime involved. This is distinct from <a href="../executorch/#coreml-backend-apple-neural-engine-fp16"><code>format="executorch", backend="coreml"</code></a>, which produces a <code>.pte</code> file for the ExecuTorch runtime. Passing both <code>format="coreml"</code> and <code>backend="coreml"</code> together does not fall through to the ExecuTorch delegate — <code>backend</code> is ignored (with a warning) and the native <code>.mlpackage</code> path always runs.</p>
-</div>
-<p>RF-DETR's native CoreML export produces a <code>.mlpackage</code> you can drag directly into Xcode, with no ONNX intermediary and no ExecuTorch runtime dependency — the lowest-friction path for Apple-native (iOS / macOS) developers.</p>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[coreml]"</span>
-</span></code></pre></div>
-<h2 id="basic-coreml-export">Basic CoreML Export<a class="headerlink" href="#basic-coreml-export" title="Permanent link">&para;</a></h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Object Detection</label><label for="__tabbed_1_2">Image Segmentation</label></div>
+<h1 id="export-basics">Export Basics<a class="headerlink" href="#export-basics" title="Permanent link">&para;</a></h1>
+<p>This page covers the everyday export path: install an extra, call <code>model.export()</code>, locate the output files, and run inference. For the full parameter reference and less common options, see <a href="../advanced/">Advanced Export</a>. For a comparison of formats and measured performance, see the <a href="../">Overview</a>.</p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<p>Install the export dependencies you need:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:7"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><input id="__tabbed_1_6" name="__tabbed_1" type="radio" /><input id="__tabbed_1_7" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">ONNX</label><label for="__tabbed_1_2">OpenVINO</label><label for="__tabbed_1_3">TFLite</label><label for="__tabbed_1_4">LiteRT</label><label for="__tabbed_1_5">ExecuTorch</label><label for="__tabbed_1_6">Native CoreML (macOS)</label><label for="__tabbed_1_7">Apple Core AI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rfdetr</span><span class="w"> </span><span class="kn">import</span> <span class="n">RFDETRMedium</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">model</span> <span class="o">=</span> <span class="n">RFDETRMedium</span><span class="p">(</span><span class="n">pretrain_weights</span><span class="o">=</span><span class="s2">"&lt;path/to/checkpoint.pth&gt;"</span><span class="p">)</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"coreml"</span><span class="p">)</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[onnx]"</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rfdetr</span><span class="w"> </span><span class="kn">import</span> <span class="n">RFDETRSegMedium</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">model</span> <span class="o">=</span> <span class="n">RFDETRSegMedium</span><span class="p">(</span><span class="n">pretrain_weights</span><span class="o">=</span><span class="s2">"&lt;path/to/checkpoint.pth&gt;"</span><span class="p">)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"coreml"</span><span class="p">)</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[openvino]"</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[tflite]"</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[litert]"</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[executorch]"</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[coreml]"</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"rfdetr[coreai]"</span>
 </span></code></pre></div>
 </div>
 </div>
 </div>
-<p>This produces <code>output/rfdetr-medium_fp32.mlpackage</code> — the file is named after the model variant plus the resolved precision (<code>{variant}_fp32.mlpackage</code> / <code>{variant}_fp16.mlpackage</code>), not a generic <code>inference_model_fp32.mlpackage</code>. The precision is always encoded, even at its default value, since fp16 vs fp32 materially changes the bundle.</p>
-<h2 id="compute-precision">Compute Precision<a class="headerlink" href="#compute-precision" title="Permanent link">&para;</a></h2>
-<p>CoreML export defaults to <code>FLOAT32</code> for tight CPU parity with eager PyTorch. Pass <code>coreml_precision="float16"</code> for a bundle half the size that Core ML can schedule onto the Neural Engine — this also changes the output filename to <code>output/rfdetr-medium_fp16.mlpackage</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"coreml"</span><span class="p">,</span> <span class="n">coreml_precision</span><span class="o">=</span><span class="s2">"float16"</span><span class="p">)</span>
-</span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Output tensor names in the saved <code>.mlpackage</code> spec are coremltools-inferred, not renamed to <code>dets</code>/<code>labels</code>/etc. — match outputs by <strong>position</strong>, in the same order as the ONNX <code>output_names</code> contract (<code>dets, labels</code> for detection; <code>dets, labels, masks</code> for segmentation; <code>dets, labels, keypoints</code> for keypoints).</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Raw tensors can differ more than the precision suggests</p>
-<p>RF-DETR's two-stage encoder picks its queries with a <code>topk</code> over the encoder tokens' class scores. CoreML's fp32 arithmetic differs from eager PyTorch's in the last bits — measured at up to 1e-5 on a ranking score — so when two neighbouring scores sit closer together than that, the two can rank them in opposite order and run the decoder on a slightly different set of queries. Every raw output then shifts, by ~1e0 on logits, on an export that otherwise tracks eager to ~1e-4. This repo's own parity tests require a 1e-4 gap between neighbouring top-k scores before they compare raw tensors at all.</p>
-<p>This is a property of the ranking, not a conversion error, and it is not specific to <code>format="coreml"</code>: any runtime whose arithmetic differs from eager in the last bits can trip it, and fp16 — the ExecuTorch CoreML delegate, or <code>coreml_precision="float16"</code> — makes it more likely, not less. Detections comfortably above a confidence threshold survive it: on one pretrained <code>RFDETRSmall</code> image at threshold 0.5 (Apple M3 Pro, coremltools 9.0, default <code>ComputeUnit.ALL</code>) the two agree on every detection, within 1.1e-4 on scores and 0.005 px on boxes. A detection sitting <em>on</em> the threshold can still cross it, since a swap was measured to move post-processed scores by up to 1.2e-3. Compare <strong>post-processed detections</strong>, not raw tensors, when validating an export.</p>
-</div>
-<h2 id="coreml-inference-example">CoreML Inference Example<a class="headerlink" href="#coreml-inference-example" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">coremltools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ct</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torchvision.transforms.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">mlmodel</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">MLModel</span><span class="p">(</span><span class="s2">"output/rfdetr-medium_fp32.mlpackage"</span><span class="p">)</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">input_height</span><span class="p">,</span> <span class="n">input_width</span> <span class="o">=</span> <span class="mi">576</span><span class="p">,</span> <span class="mi">576</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"image.jpg"</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">image_tensor</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">image_tensor</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image_tensor</span><span class="p">,</span> <span class="p">[</span><span class="n">input_height</span><span class="p">,</span> <span class="n">input_width</span><span class="p">],</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">mean</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">]</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">std</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">image_tensor</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">image_tensor</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="n">image_array</span> <span class="o">=</span> <span class="n">image_tensor</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># add batch dimension: (1, 3, H, W)</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="c1"># The input name is coremltools-inferred (currently "tensors"), so read it from the spec</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="c1"># rather than hard-coding it.</span>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="n">input_name</span> <span class="o">=</span> <span class="n">mlmodel</span><span class="o">.</span><span class="n">get_spec</span><span class="p">()</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
-</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
-</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="c1"># Outputs are positional (see the precision note above) — dets, labels, in that order.</span>
-</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="n">predictions</span> <span class="o">=</span> <span class="n">mlmodel</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="n">input_name</span><span class="p">:</span> <span class="n">image_array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)})</span>
-</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">predictions</span><span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">mlmodel</span><span class="o">.</span><span class="n">get_spec</span><span class="p">()</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">output</span><span class="p">]</span>
-</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="n">boxes</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span></code></pre></div>
-<h2 id="neural-engine-compute-units-and-the-fallback-boundary">Neural Engine, Compute Units, and the Fallback Boundary<a class="headerlink" href="#neural-engine-compute-units-and-the-fallback-boundary" title="Permanent link">&para;</a></h2>
-<p>Core ML decides at <strong>load time</strong> which of the CPU, GPU and Apple Neural Engine (ANE) runs each part of the model. That choice is not stored in the <code>.mlpackage</code> — <code>MLModel</code> defaults to <code>ComputeUnit.ALL</code> every time it is loaded — so it is the caller's to make:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Python</label><label for="__tabbed_2_2">Swift</label></div>
+<h2 id="basic-export">Basic Export<a class="headerlink" href="#basic-export" title="Permanent link">&para;</a></h2>
+<p>Export your trained model to ONNX format:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Object Detection</label><label for="__tabbed_2_2">Image Segmentation</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">coremltools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ct</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">mlmodel</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">MLModel</span><span class="p">(</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="s2">"output/rfdetr-small_fp16.mlpackage"</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">compute_units</span><span class="o">=</span><span class="n">ct</span><span class="o">.</span><span class="n">ComputeUnit</span><span class="o">.</span><span class="n">CPU_AND_NE</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rfdetr</span><span class="w"> </span><span class="kn">import</span> <span class="n">RFDETRSmall</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">model</span> <span class="o">=</span> <span class="n">RFDETRSmall</span><span class="p">(</span><span class="n">pretrain_weights</span><span class="o">=</span><span class="s2">"&lt;path/to/checkpoint.pth&gt;"</span><span class="p">)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">()</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-swift highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">let</span><span class="w"> </span><span class="nv">configuration</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="bp">MLModelConfiguration</span><span class="p">()</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">configuration</span><span class="p">.</span><span class="n">computeUnits</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">.</span><span class="n">cpuAndNeuralEngine</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kd">let</span><span class="w"> </span><span class="nv">model</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">try</span><span class="w"> </span><span class="bp">MLModel</span><span class="p">(</span><span class="n">contentsOf</span><span class="p">:</span><span class="w"> </span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">configuration</span><span class="p">:</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rfdetr</span><span class="w"> </span><span class="kn">import</span> <span class="n">RFDETRSegMedium</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">model</span> <span class="o">=</span> <span class="n">RFDETRSegMedium</span><span class="p">(</span><span class="n">pretrain_weights</span><span class="o">=</span><span class="s2">"&lt;path/to/checkpoint.pth&gt;"</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">()</span>
 </span></code></pre></div>
 </div>
 </div>
 </div>
-<p><strong>Precision decides whether the ANE is reachable at all.</strong> The ANE has no fp32 path, so an fp32 bundle never touches it — <code>CPU_AND_NE</code> then measures the same as <code>CPU_ONLY</code>. Only <code>coreml_precision="float16"</code> puts the model on the ANE.</p>
-<p>Single-image latency, pretrained <code>RFDETRNano</code> at 384x384, Apple M3 Pro (macOS 27.0.1, coremltools 9.0), batch 1, p50 in ms over 3 runs of 100 iterations after 10 warm-ups, 200 ms between timed passes:</p>
+<p>This command saves the ONNX model to the <code>output</code> directory by default.</p>
+<h2 id="choose-a-format">Choose a Format<a class="headerlink" href="#choose-a-format" title="Permanent link">&para;</a></h2>
+<p>Pass <code>format=</code> to <code>model.export()</code> to pick another target; the extra from <a href="#installation">Installation</a> must be installed first. Which format is fastest depends on the hardware — measured numbers are on the <a href="../#measured-performance-by-hardware">Overview</a>.</p>
 <table>
 <thead>
 <tr>
-<th>Precision</th>
-<th><code>CPU_ONLY</code></th>
-<th><code>CPU_AND_NE</code></th>
-<th><code>CPU_AND_GPU</code></th>
-<th><code>ALL</code></th>
+<th>Deploying to</th>
+<th><code>format=</code></th>
+<th>Guide</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>fp32</td>
-<td>75.1</td>
-<td>76.3</td>
-<td><strong>26.1</strong></td>
-<td>27.0</td>
+<td>Anywhere ONNX Runtime runs</td>
+<td><code>"onnx"</code> (default)</td>
+<td><a href="../onnx/">ONNX Inference</a></td>
 </tr>
 <tr>
-<td>fp16</td>
-<td>50.7</td>
-<td>24.9</td>
-<td>25.5</td>
-<td><strong>22.7</strong></td>
+<td>NVIDIA GPU</td>
+<td><code>"tensorrt"</code> (alias <code>"trt"</code>)</td>
+<td><a href="../tensorrt/">TensorRT</a></td>
+</tr>
+<tr>
+<td>Intel CPU, GPU or NPU</td>
+<td><code>"openvino"</code></td>
+<td><a href="../openvino/">OpenVINO</a></td>
+</tr>
+<tr>
+<td>Android, embedded, edge CPU</td>
+<td><code>"tflite"</code> or <code>"litert"</code></td>
+<td><a href="../tflite/">TFLite</a>, <a href="../litert/">LiteRT</a></td>
+</tr>
+<tr>
+<td>On-device PyTorch runtime</td>
+<td><code>"executorch"</code> (alias <code>"pte"</code>)</td>
+<td><a href="../executorch/">ExecuTorch</a></td>
+</tr>
+<tr>
+<td>Apple platforms (Xcode)</td>
+<td><code>"coreml"</code> or <code>"coreai"</code></td>
+<td><a href="../coreml/">Native CoreML</a>, <a href="../coreai/">Core AI</a></td>
 </tr>
 </tbody>
 </table>
-<p>On this M3 Pro, with this one model: <strong>fp32 belongs on the GPU, fp16 on the ANE or <code>ALL</code>.</strong> The ranking depends on the chip and the model, so measure on your target device. Loading an fp16 bundle with <code>CPU_AND_NE</code> is about 2.0x faster than CPU and about as fast as the GPU here (back to back, with no sleep between passes: 12.7 ms on the ANE, 12.1 ms on the GPU). Single-image latency is therefore no longer a reason to prefer the ANE over the GPU.</p>
-<p>The ANE pays for that at load: compiling an fp16 RFDETRNano for it takes about 5 s on first load, against about 0.5 s for the GPU or CPU path (subsequent loads of the same bundle are cached by the system). For a process that runs a handful of images and exits, the GPU is the better trade.</p>
-<p><strong>fp16 keeps the accuracy.</strong> On COCO val2017 (all 5000 images, pretrained <code>RFDETRNano</code>, same decoding for all rows, Apple M3 Pro):</p>
+<p>Format names are case-insensitive. Formats marked experimental in <a href="../advanced/#format-capabilities">Advanced Export</a> emit a warning when constructed.</p>
+<h2 id="check-the-export">Check the Export<a class="headerlink" href="#check-the-export" title="Permanent link">&para;</a></h2>
+<p>An exported model returns raw tensors — box and logit decoding (sigmoid, background slot, box format) is left to your inference code. The <a href="../onnx/">ONNX guide</a> spells out the decoding rules and two pitfalls that apply to every format. To confirm an export matches PyTorch, run both on the same image and compare detections; the <a href="../../cookbooks/">export cookbooks</a> do this per hardware class, with latency and COCO mAP next to each other.</p>
+<h2 id="output-files">Output Files<a class="headerlink" href="#output-files" title="Permanent link">&para;</a></h2>
+<p>Filenames are built from the model's variant name (e.g. <code>rfdetr-medium</code>, falling back to <code>inference_model</code> when no variant or <code>output_name</code> is set, or <code>backbone_model</code> when <code>backbone_only=True</code> in that same case) plus a detail suffix whenever a detail materially changes the artifact — even at its default value, since the file needs to say what it actually is:</p>
 <table>
 <thead>
 <tr>
-<th>Precision</th>
-<th>mAP@[.5:.95]</th>
-<th>mAP@.5</th>
+<th>Format</th>
+<th>Filename pattern</th>
+<th>Detail encoded</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>eager PyTorch fp32</td>
-<td>48.0</td>
-<td>67.1</td>
+<td><code>onnx</code></td>
+<td><code>{variant}.onnx</code> (or <code>{variant}-backbone.onnx</code> if <code>backbone_only=True</code>); without a variant or <code>output_name</code>, <code>inference_model.onnx</code> (or <code>backbone_model.onnx</code> if <code>backbone_only=True</code>)</td>
+<td>none — <code>-backbone</code> is structural, not a precision detail</td>
 </tr>
 <tr>
-<td>Core ML fp32, <code>ALL</code></td>
-<td>48.0</td>
-<td>67.1</td>
+<td><code>coreml</code></td>
+<td><code>{variant}_fp32.mlpackage</code> / <code>{variant}_fp16.mlpackage</code> (or <code>{variant}_fp32-backbone.mlpackage</code> if <code>backbone_only=True</code>); without a variant or <code>output_name</code>, <code>backbone_model_fp32.mlpackage</code> if <code>backbone_only=True</code></td>
+<td><code>coreml_precision</code>, plus <code>-backbone</code> when named</td>
 </tr>
 <tr>
-<td>Core ML fp16, <code>CPU_AND_NE</code></td>
-<td>48.0</td>
-<td>67.1</td>
+<td><code>coreai</code></td>
+<td><code>{variant}_fp32.aimodel</code> / <code>{variant}_fp16.aimodel</code>; without a variant or <code>output_name</code>, <code>inference_model_fp32.aimodel</code></td>
+<td><code>coreai_precision</code></td>
 </tr>
 <tr>
-<td>Core ML fp16, <code>CPU_AND_GPU</code></td>
-<td>48.0</td>
-<td>67.1</td>
+<td><code>executorch</code></td>
+<td><code>{variant}_xnnpack.pte</code> / <code>{variant}_coreml.pte</code> / <code>{variant}_qnn_{soc}.pte</code> (or <code>{variant}_xnnpack-backbone.pte</code> if <code>backbone_only=True</code>); without a variant or <code>output_name</code>, <code>backbone_model_xnnpack.pte</code> if <code>backbone_only=True</code></td>
+<td><code>backend</code> (+ <code>soc</code> for <code>qnn</code>), plus <code>-backbone</code> when named</td>
+</tr>
+<tr>
+<td><code>tensorrt</code></td>
+<td><code>{variant}_fp16.trt</code> / <code>{variant}_fp32.trt</code> (or <code>{variant}-backbone_fp16.trt</code> / <code>{variant}-backbone_fp32.trt</code> if <code>backbone_only=True</code>)</td>
+<td><code>fp16</code>, plus <code>_ampere_plus</code> / <code>_same_compute_capability</code> and <code>_version_compatible</code> when set, and <code>-backbone</code> when named</td>
+</tr>
+<tr>
+<td><code>tflite</code></td>
+<td><code>{variant}_fp32.tflite</code> + <code>{variant}_fp16.tflite</code> (+ <code>{variant}_dynamic_range_quant.tflite</code> for <code>quantization="int8"</code>)</td>
+<td>precision / quantization mode</td>
+</tr>
+<tr>
+<td><code>onnx</code> (int8)</td>
+<td><code>{variant}_int8.onnx</code> beside the FP32 <code>{variant}.onnx</code> the quantization was derived from</td>
+<td><code>_int8</code></td>
+</tr>
+<tr>
+<td><code>openvino</code></td>
+<td><code>{variant}.xml</code> + <code>{variant}.bin</code> (or <code>{variant}-backbone.xml</code>/<code>.bin</code> if <code>backbone_only=True</code>); with <code>quantization="int8"</code>, <code>{variant}_int8.xml</code> + <code>{variant}_int8.bin</code> (or <code>{variant}_int8-backbone.xml</code>/<code>.bin</code>); without a variant or <code>output_name</code>, <code>inference_model.xml</code>/<code>.bin</code> (or <code>backbone_model.xml</code>/<code>.bin</code> if <code>backbone_only=True</code>)</td>
+<td><code>quantization="int8"</code> (<code>_int8</code>), plus <code>-backbone</code> when named; <code>openvino_precision</code> controls IR weight compression, not the filename</td>
 </tr>
 </tbody>
 </table>
-<p>The fp16 bundle is an iOS 15 program on purpose. An iOS 16 program runs <code>resample</code> on the Neural Engine in fp16, and that moved mAP down by about 3 points (45.1) while the same bundle was fine on the GPU or CPU; as an iOS 15 program that op stays off the ANE. Validate an fp16 bundle on your own data before shipping it.</p>
-<p><strong>The fallback boundary, at fp16.</strong> An fp16 RF-DETR graph is almost entirely ANE-eligible. The exceptions are the two-stage query selection — <code>topk</code>, and the <code>expand_dims</code>/<code>tile</code>/<code>gather_along_axis</code> that consume its indices — plus the deformable-attention sampling (<code>resample</code>) with the <code>cast</code> ops beside it, which Core ML runs on the CPU. Measured with <code>MLComputePlan</code> under <code>CPU_AND_NE</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Model</th>
-<th>Ops on ANE</th>
-<th>Ops on CPU</th>
-<th>Share of estimated work on the ANE</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>RFDETRNano</code></td>
-<td>591</td>
-<td>11</td>
-<td>99.7%</td>
-</tr>
-<tr>
-<td><code>RFDETRSmall</code></td>
-<td>648</td>
-<td>13</td>
-<td>99.7%</td>
-</tr>
-<tr>
-<td><code>RFDETRMedium</code></td>
-<td>705</td>
-<td>15</td>
-<td>99.7%</td>
-</tr>
-<tr>
-<td><code>RFDETRSegNano</code></td>
-<td>725</td>
-<td>15</td>
-<td>99.9%</td>
-</tr>
-</tbody>
-</table>
-<p>Those eleven to fifteen ops are the whole boundary, and they cost 0.1% to 0.3% of the model's estimated work.</p>
-<p>At fp32 there is no boundary to speak of, because there is no ANE: the plan reports <em>every</em> op as ANE-unsupported, and the same RFDETRNano bundle runs all 597 ops on the GPU under <code>ALL</code> and all 597 on the CPU under <code>CPU_AND_NE</code>.</p>
-<p><strong><code>ALL</code> is not always the fastest choice.</strong> With <code>ALL</code>, Core ML is free to put part of the graph on the GPU, and for <code>RFDETRSegNano</code> it does: the plan splits 79% ANE / 21% GPU (measured on the earlier iOS 16 bundle; not re-measured for the iOS 15 bundle), and the transfers between them cost real time — 44.2 ms under <code>ALL</code> against 38.8 ms under <code>CPU_AND_NE</code> (p50, same methodology as the table above). Whether detection models show the same gap was not measured here. Measure both on your target device rather than assuming the default is best.</p>
-<p>The <a href="../executorch/#coreml-backend-apple-neural-engine-fp16">ExecuTorch CoreML delegate</a> lowers RF-DETR to a single Core ML model inside the <code>.pte</code>, and that model does reach the Neural Engine. Its internal split is not measurable with <code>MLComputePlan</code>, which needs an <code>.mlpackage</code>, so the table above is not a statement about the <code>.pte</code>.</p>
+<p>Pass <code>output_name="my-model"</code> to override the variant name and write <code>{output_name}.{ext}</code> verbatim — this suppresses the detail suffix for every format <strong>except</strong> <code>tflite</code> and <code>onnx</code> with <code>quantization="int8"</code>. Both write several files from one call: <code>tflite</code> keeps its <code>_fp32</code>/<code>_fp16</code>/<code>_dynamic_range_quant</code> suffix even with a custom name (<code>{output_name}_fp32.tflite</code>, etc.), and ONNX int8 writes the FP32 <code>{output_name}.onnx</code> beside the quantized <code>{output_name}_int8.onnx</code>, so dropping the suffix would make the two collide. OpenVINO int8 writes a single IR, so a custom <code>output_name</code> is taken verbatim and the <code>_int8</code> suffix is dropped.</p>
+<p>With <code>backbone_only=True</code>, ONNX, CoreML, ExecuTorch, TensorRT, and OpenVINO retain a <code>-backbone</code> marker before the extension even when <code>output_name</code> is set, for example <code>my-model-backbone.onnx</code>. This distinguishes the backbone artifact from the full detector exported with the same name.</p>
+<p>With <code>trt_metadata=True</code>, <code>format="tensorrt"</code> also writes a JSON description next to the engine, named after it: <code>{variant}_fp16.trt</code> gets <code>{variant}_fp16.json</code>. See <a href="../tensorrt/#engine-description-file">Engine Description File</a>.</p>
+<h2 id="run-inference-with-inference-models">Run Inference with <code>inference-models</code><a class="headerlink" href="#run-inference-with-inference-models" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/roboflow/inference/tree/main/inference_models"><code>inference-models</code></a> is the recommended library for running RF-DETR inference. It supports multiple backends — PyTorch, ONNX, and TensorRT — with automatic backend selection and a unified API.</p>
+<h3 id="installation_1">Installation<a class="headerlink" href="#installation_1" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># CPU / PyTorch only</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>pip<span class="w"> </span>install<span class="w"> </span>inference-models
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># With TensorRT support (NVIDIA GPU required)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"inference-models[trt10]"</span><span class="w">  </span><span class="c1"># TensorRT 10</span>
+</span></code></pre></div>
+<p>See the <a href="https://inference-models.roboflow.com/getting-started/installation/">inference-models installation guide</a> for all installation options including Jetson and CUDA 11.x.</p>
+<h3 id="load-a-pre-trained-rf-detr-model">Load a Pre-trained RF-DETR Model<a class="headerlink" href="#load-a-pre-trained-rf-detr-model" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inference_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModel</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Automatically selects the best available backend for your environment</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">"rfdetr-small"</span><span class="p">)</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">"image.jpg"</span><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1"># Convert to supervision Detections</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="n">detections</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_supervision</span><span class="p">()</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">detections</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="load-a-local-rf-detr-checkpoint">Load a Local RF-DETR Checkpoint<a class="headerlink" href="#load-a-local-rf-detr-checkpoint" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inference_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModel</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Load from a local .pth checkpoint (same file used by rfdetr for training)</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="s2">"/path/to/checkpoint.pth"</span><span class="p">,</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="n">model_type</span><span class="o">=</span><span class="s2">"rfdetr-small"</span><span class="p">,</span>  <span class="c1"># specify the architecture variant</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">)</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">"image.jpg"</span><span class="p">)</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="force-tensorrt-backend">Force TensorRT Backend<a class="headerlink" href="#force-tensorrt-backend" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inference_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModel</span><span class="p">,</span> <span class="n">BackendType</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Explicitly request TensorRT — requires TRT to be installed</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">"rfdetr-small"</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BackendType</span><span class="o">.</span><span class="n">TRT</span><span class="p">)</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">"image.jpg"</span><span class="p">)</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+</span></code></pre></div>
+<p><code>AutoModel.from_pretrained</code> accepts <code>backend="onnx"</code>, <code>backend="torch"</code>, or <code>backend="trt"</code> to override automatic backend selection.</p>
+<h2 id="using-the-exported-model">Using the Exported Model<a class="headerlink" href="#using-the-exported-model" title="Permanent link">&para;</a></h2>
+<p>Once exported, you can use the ONNX model with various inference frameworks. See <a href="../onnx/">ONNX Inference</a> for a complete example, or the format-specific pages for other runtimes.</p>
 
 
 
@@ -3143,7 +3296,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="October 6, 2026 14:26:55 UTC">2026-10-06 14:26:55</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="October 6, 2026 19:23:17 UTC">2026-10-06 19:23:17</span>
   </span>
 
     

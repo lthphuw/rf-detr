@@ -1303,6 +1303,62 @@ APIs described here may change or may never ship in a release, so use the <a hre
   
   
   
+    <li class="md-nav__item">
+      <a href="../exports/basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exports/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -1317,10 +1373,10 @@ APIs described here may change or may never ship in a release, so use the <a hre
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_4_2" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_4_4" >
         
           
-          <label class="md-nav__link" for="__nav_2_4_2" id="__nav_2_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_4_4" id="__nav_2_4_4_label" tabindex="0">
             
   
   
@@ -1338,8 +1394,8 @@ APIs described here may change or may never ship in a release, so use the <a hre
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_4_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2715,13 +2771,79 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <p>All notable changes to RF-DETR are documented here.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>format="coreml"</code> with <code>coreml_precision="float16"</code> now returns float32 output arrays; the <code>.mlpackage</code> returned float16 outputs before, because it was converted as an iOS 16 program and is now converted as iOS 15. A consumer that reads the outputs as float16 (a typed buffer, a <code>dtype</code> check) must read float32. <code>coreml_precision="float32"</code> bundles are unchanged. (<a href="https://github.com/roboflow/rf-detr/issues/1024">#1024</a>)</p>
+</li>
+<li>
+<p>Removed <code>rfdetr.datasets.yolo.REQUIRED_DATA_SUBDIRS</code>. <code>is_valid_yolo_dataset</code> resolves split directories through the YAML-aware resolver, which derives the labels directory from the resolved images path, so the constant no longer described how any code finds a split's subdirectories. Nothing inside the package read it; an external importer should inline <code>["images", "labels"]</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1570">#1570</a>)</p>
+</li>
+</ul>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>rfdetr.RFDETRAtto</code>, <code>rfdetr.RFDETRFemto</code> and <code>rfdetr.RFDETRPico</code>: real-time detection models with a PE-Core-T backbone, provided by <code>rfdetr_plus</code> like the XLarge models (<code>pip install "rfdetr[plus]"</code>, Platform Model License 1.0). <code>RFDETR.from_checkpoint()</code> resolves their checkpoints; an outdated <code>rfdetr_plus</code> raises an upgrade hint, and a broken <code>rfdetr_plus</code> install no longer blocks loading core checkpoints.</p>
+</li>
+<li>
+<p><code>rfdetr.models.backbone.register_backbone(encoder, backbone_cls)</code>: an extension package can provide a non-DINOv2 encoder for a <code>ModelConfig.encoder</code> name by subclassing <code>Backbone</code> and overriding <code>_build_encoder</code>. A registered encoder that defines <code>set_export_shape(shape)</code> gets its position embeddings frozen for export, like DINOv2.</p>
+</li>
+<li>
+<p><code>ModelConfig.dim_feedforward</code> (default <code>2048</code>) sets the decoder feed-forward width.</p>
+</li>
+<li>
+<p><code>RFDETRModelModule(..., load_encoder_weights=False)</code> skips fetching the encoder's upstream pretrained weights when every weight is replaced right after construction; the default <code>True</code> keeps the previous behaviour. <code>RFDETR.evaluate()</code> passes it.</p>
+</li>
+<li>
+<p>Public <code>rfdetr.export.inference</code> exposes <code>TRTInference</code>, <code>load_executorch_method</code>, <code>preprocess_to_nchw</code>, <code>decode_detections</code> and <code>DecodedDetections</code> next to <code>OpenVINOInference</code>; each resolves lazily, so importing the module does not require an optional runtime. (<a href="https://github.com/roboflow/rf-detr/pull/1585">#1585</a>)</p>
+</li>
+<li>
+<p>Public <code>rfdetr.export.benchmark</code> exposes <code>measure_latency</code>, <code>measure_memory</code>, <code>BenchmarkResult</code> and <code>MemoryResult</code>, the helpers the per-hardware export cookbooks use. (<a href="https://github.com/roboflow/rf-detr/pull/1585">#1585</a>)</p>
+</li>
+<li>
+<p><code>TRTInference(cuda_graph=True)</code> (<code>rfdetr.export.inference.TRTInference</code>; <code>python -m rfdetr.export.benchmark</code> does not expose it) captures the engine's launch into a CUDA graph on the first call and replays it on every later call, which removes most of the per-call launch cost at small batch sizes. It is off by default. Measured as wall-clock time per call, including the copy of the input, against the same engine run with <code>sync_mode=True</code> (3 x 1000 calls, minimum of the medians, RTX 5070 under WSL2): with TensorRT 10.16 a Nano FP16 engine took 1.65 ms at batch 1 and a replay 0.99 ms (1.67x faster), Small 2.10 ms and 1.49 ms (1.41x); at batch 8 the gain was 1.09x for Nano and 1.05x for Small. With TensorRT 11.3 Nano gained 1.71x and Small 1.42x at batch 1. The default async path, which needs pycuda, was not measured. The outputs matched the plain call (bit for bit on the engines measured; repo tests check within 1e-3). Only an engine whose optimization profile fixes every input shape, the batch included, is accepted, so a runtime keeps one graph: an engine exported with <code>dynamic_batch=True</code>, or one whose image size varies, is refused with a <code>ValueError</code> at construction, because captured graphs would share one execution context that a change of shape modifies between replays, which TensorRT documents as undefined behaviour. The graph held 0.57 to 0.73 MiB of device memory and 1.6 to 2.1 MiB of host memory on the Nano and Small engines measured. A runtime is not safe to call from several threads. The option uses its own torch stream, so it does not need pycuda, and it raises instead of falling back when combined with <code>sync_mode=True</code> or when the engine cannot be captured. (<a href="https://github.com/roboflow/rf-detr/pull/1583">#1583</a>)</p>
+</li>
+<li>
+<p><code>RFDETR.export(format="tensorrt", trt_metadata=True)</code> writes <code>&lt;engine&gt;.json</code> next to the engine. It lists what a program needs to run the engine without importing the model: the input name, size, layout and normalization (RGB order, divide by 255, mean and std, and the resize method), the output names in order, the batch profile (static size or dynamic min/opt/max), the precision actually built, the opset, the TensorRT version and GPU, <code>notes</code>, and the engine file's size and SHA-256, so a consumer can check that the description file belongs to the engine it loads. A <code>.trt</code> file has no slot for this, so a C++, Triton or DeepStream consumer had to be told by hand, and <code>notes</code> only reached the intermediate ONNX. The file is written atomically and, on Linux and macOS where permitted, takes the engine's permission bits and group. When a build writes no description file (the option off, or <code>TensorRTExporter.build_engine</code>), an earlier description file with the same name is reported with a warning, never deleted. Class names and the background slot are not recorded yet. Off by default; other formats warn and ignore it. (<a href="https://github.com/roboflow/rf-detr/issues/1024">#1024</a>)</p>
+</li>
+<li>
+<p><code>RFDETR.export(format="tensorrt")</code> takes <code>trt_hardware_compatibility</code> (<code>"ampere_plus"</code> or <code>"same_compute_capability"</code>) and <code>trt_version_compatible=True</code>. They ask TensorRT for an engine that other GPUs, or other releases of the same TensorRT major version, may load; every engine used to be tied to the GPU and TensorRT version that built it. We had one GPU, so running on a second one is untested. Version compatibility worked between TensorRT 11.2 and 11.3 in both directions, and didn't work across major versions or between 10.13 and 10.16. It needs TensorRT's lean runtime package, which the pip wheels don't include; without it the export stops early with an <code>ImportError</code> that names it. On an RTX 5070 with TensorRT 11.3 (static-batch <code>RFDETRNano</code> fp16, median of fresh-process <code>build_engine</code> calls, latency from CUDA events): <code>"ampere_plus"</code> took 130 s to build instead of 38 s, made a 99 MB engine instead of 62 MB and ran 10.9% slower (<code>RFDETRSmall</code>: 9.6%); <code>"same_compute_capability"</code> cost nothing measurable; <code>trt_version_compatible</code> added 105 MB and ran as fast (within 1%). COCO AP stayed within build-to-build noise for every option. A portable engine gets its own file name suffix, so it doesn't overwrite a default engine (unless <code>output_name</code> is set). <code>TRTInference</code> and <code>rfdetr.export.benchmark</code> take <code>engine_host_code_allowed</code> (off by default), which a TensorRT 11 version-compatible engine needs because it carries host code. Both options are off by default; other formats warn and ignore them. (<a href="https://github.com/roboflow/rf-detr/issues/1024">#1024</a>)</p>
+</li>
+<li>
+<p><code>RFDETR.inference(compile_backend="cudagraph")</code> adds an opt-in direct CUDA Graph replay backend for fixed batch size and resolution. It freezes the TorchScript trace, captures its forward once, and clones graph-owned outputs so later calls cannot overwrite earlier results; the default remains <code>"torchscript"</code>, and <code>compile=True</code> on a non-CUDA device raises <code>ValueError</code>. On one NVIDIA L4 VM with RF-DETR Nano, FP16, batch 1, and the public PIL-image <code>predict()</code> path, seven sequential fresh-process paired runs reduced median end-to-end latency from 9.719 ms to 3.884 ms (60.03% lower, 2.50x throughput; paired throughput range 2.43-2.57x). Total setup took a 7.37 s median and graph capture added 29.1 MiB of allocated CUDA memory over the retained trace in the benchmark. One full COCO val2017 pass produced exactly the same AP/AP50 (0.480240/0.671360), with 1.5 million ranked detections per arm; its descriptive, single-process median <code>predict()</code> latency was 9.887 ms versus 4.051 ms. (<a href="https://github.com/roboflow/rf-detr/pull/1547">#1547</a>)</p>
+</li>
+<li>
+<p><code>RFDETR.predict()</code> accepts a keyword-only <code>antialias</code> flag (default <code>False</code>, unchanged behaviour). Pass <code>antialias=True</code> for checkpoints trained with torchvision resizing; exported models still resize without antialiasing. On MPS with PyTorch older than 2.7, antialiased resizing runs on the CPU. (<a href="https://github.com/roboflow/rf-detr/pull/1525">#1525</a>)</p>
+</li>
+<li>
+<p><code>RFDETR.export(format="tensorrt", trt_timing_cache="&lt;path&gt;")</code> saves TensorRT's kernel timings to a file and reuses them on the next build. Every build used to time all kernels from scratch: rfdetr never gave Polygraphy a timing cache. Rebuilding the same model at the same precision and batch profile (after fine-tuning, say) now skips most of that work. On an RTX 5070 with TensorRT 11.3, <code>build_engine</code> for a static-batch <code>RFDETRNano</code> went from 37.9 s to 8.4 s in fp16 and from 12.9 s to 7.9 s in fp32 (median of three runs, each in a fresh process). A cache from the pretrained model did as well for a model fine-tuned to 3 classes (37.4 s to 9.0 s in fp16). The engine is the same: its outputs match the build that filled the cache bit for bit, and its latency is within 2% of a build without the cache. A cache from another TensorRT major version, or an empty or corrupt file, doesn't stop the build; TensorRT logs an error and the file is replaced. Off by default; other formats warn and ignore it. (part of #1024, <a href="https://github.com/roboflow/rf-detr/pull/1579">#1579</a>)</p>
+</li>
+<li>
+<p>Static INT8 post-training quantization for <code>format="onnx"</code> and <code>format="openvino"</code>, via <code>quantization="int8"</code> plus a required <code>calibration_data</code> (a directory of representative images, a <code>.npy</code> file of shape <code>(N, C, H, W)</code>, or an equivalent array). ONNX writes <code>{name}_int8.onnx</code> beside the FP32 graph it was derived from; OpenVINO compresses the IR with NNCF (<code>pip install nncf</code>, deliberately outside the <code>[openvino]</code> extra) before writing it. Unlike TFLite's dynamic-range <code>"int8"</code>, which ignores calibration data, static quantization reads activation ranges from it, so omitting it is refused rather than defaulted. Only <code>MatMul</code>/<code>Gemm</code> run in 8-bit: attention-score multiplies, the detection heads, normalization, softmax and the surrounding elementwise math stay in float, and the quantized ops' outputs are not requantized. Measured on a 500-image COCO val2017 subset, ONNX Runtime's default op coverage instead costs 9.65 mAP on <code>RFDETRNano</code> and 12.14 on <code>RFDETRSmall</code>, against 2.65 and 2.67 for this configuration, and is also slower — the conversions around non-matmul ops cost more than the 8-bit kernels save. Expect roughly 3x smaller artifacts and ~1.4x faster CPU inference at batch 1, at a real accuracy cost worth measuring on your own data.</p>
+</li>
+</ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>Replaced the four per-export-format cookbooks (<code>export-coreml</code>, <code>export-tensorrt</code>, <code>export-executorch</code>, <code>export-tflite</code>) and <code>inference-latency-benchmark</code> with four per-hardware cookbooks — <code>export-cuda</code>, <code>export-cpu</code>, <code>export-mobile</code>, <code>export-apple</code> — each exporting every format that targets that hardware, running inference on it, and benchmarking it against a PyTorch baseline. This also adds cookbook coverage for four formats that previously had none: ONNX, OpenVINO, LiteRT, and Core AI. Per-format reference docs (<code>docs/exports/*.md</code>) are unchanged. Added <code>rfdetr.export._benchmark</code> (private), with <code>measure_latency</code> (CUDA-event timing when <code>device="cuda"</code>, <code>time.perf_counter</code> otherwise) and <code>measure_memory</code> (host RSS delta via <code>psutil</code>, or CUDA free-memory delta via <code>torch.cuda.mem_get_info()</code>) helpers shared by all four cookbooks, replacing the ONNX-only <code>rfdetr.export._onnx.inference._onnx_runtime</code>, which is removed. Each cookbook's results table benchmarks a format's default configuration plus one precision variant wherever the exporter exposes a perf-relevant knob — OpenVINO fp32 vs fp16 IR, TensorRT auto vs fp32, CoreML and Core AI fp32 vs fp16, TFLite fp32 vs fp16 vs dynamic-range INT8 — while ONNX and LiteRT stay single-row, since neither exposes a precision setting.</p>
+<p>The <code>rfdetr[plus]</code> extra now requires <code>rfdetr_plus&gt;=1.1.0</code> (was <code>&gt;=1.0.1</code>). An older <code>rfdetr_plus</code> that is already installed still works for the XLarge models, because the PE models are imported in their own block.</p>
 </li>
 <li>
-<p><code>RFDETR.from_checkpoint()</code> no longer restores <code>device</code> from a checkpoint's <code>model_config</code>. The loading host's default wins, so a checkpoint trained on a GPU loads on a CPU-only machine; pass <code>device=</code> explicitly to pick the device yourself. Every other <code>model_config</code> field except <code>pretrain_weights</code> (the checkpoint path itself supplies the weights) is still restored, with caller keyword arguments taking precedence.</p>
+<p><code>build_backbone</code> now forwards <code>ModelDefaults.force_no_pretrain</code> to the encoder builder. A caller that already passed <code>defaults=ModelDefaults(force_no_pretrain=True)</code> used to get DINOv2's upstream encoder weights anyway and now gets randomly initialised encoder weights, with <code>pretrain_weights</code> handled separately as before. The default <code>False</code> leaves every other caller unchanged.</p>
+</li>
+<li>
+<p><code>quantization</code> for <code>format="onnx"</code> and <code>format="openvino"</code> is now checked: a value other than <code>None</code>, <code>"fp32"</code> or <code>"int8"</code> raises <code>ValueError</code> instead of being ignored, and <code>quantization="int8"</code> without <code>calibration_data</code> raises instead of silently exporting FP32. ONNX <code>quantization="int8"</code> returns <code>{stem}_int8.onnx</code>, written beside the FP32 <code>{stem}.onnx</code>, rather than the FP32 path. OpenVINO <code>quantization="int8"</code> writes <code>{stem}_int8.xml</code>/<code>.bin</code> so it no longer overwrites the FP32 IR; an explicit <code>output_name</code> is still used verbatim.</p>
+</li>
+<li>
+<p>Eager training (<code>compile=False</code>, the default) spends less of every step on layout and cast kernels in the decoder. Five rewrites in <code>models/transformer.py</code>, taken only on NVIDIA CUDA in eager execution (ROCm builds, <code>torch.compile</code>, tracing/export, <code>torch.func</code> transforms, CPU, MPS and XLA keep the previous ops): <code>gen_sineembed_for_position</code> divides by the <code>dim // 2</code> distinct frequencies once and writes <code>sin</code>/<code>cos</code> interleaved straight into the output (in the autocast dtype when <code>ref_point_head</code> and its first linear have plain calls) instead of two strided slices, a <code>stack</code> and a <code>cat</code>; <code>with_pos_embed</code> sums that only feed autocast-cast matmuls are emitted in the compute dtype in one kernel; the grouped self-attention runs <code>nn.MultiheadAttention</code>'s own projections on the ungrouped layout with the group regrouping as a view, removing three <code>cat</code>s, their backward copies and the module's <code>batch_first</code> transposes; the FFN's <code>relu(linear1(x))</code> applies bias and ReLU in the cuBLASLt GEMM epilogue (<code>torch._addmm_activation</code>, with the two-op backward spelled out, itself differentiable); and the two-stage selection casts the shared encoder memory once before its <code>group_detr</code>-fold expansion. The sine embedding and the FFN epilogue also run in <code>eval()</code>. Rewrites are limited to the plain modules the layer builds and to calls nothing observes or overrides: a subclass, a forward or backward hook (module or global), a <code>compile()</code> wrapper, an instance-level <code>forward</code>, an overridden <code>with_pos_embed</code>, a tensor-subclass weight, a non-fp32 source under autocast and an odd embedding width keep the previous ops, as do masks, nonzero attention dropout and eval mode for the self-attention. On the tested stack (NVIDIA L4, real COCO images) forward outputs, every loss term and the total loss are bitwise identical to the previous code; the GPU parity tests pin fp32 matmul precision to <code>"highest"</code>, so the trainer's TF32 default (<code>"high"</code>) is not covered, and the FFN's equality relies on cuBLASLt picking the same GEMM for the ReLU epilogue as for <code>F.linear</code>, which other GPUs or torch versions need not do. Gradients are not bitwise: the self-attention weight gradients reduce over the tokens in a different row order (at most one bf16 ulp under bf16 autocast), the folded positional adds sum the gradients of their two consumers in the compute dtype before the upcast (one extra rounding of at most half an ulp), and the module path's deformable-attention backward is not deterministic either. <code>FlopCounterMode</code> has no formula for <code>torch._addmm_activation</code>, so it undercounts the FFN on a CUDA model in eager execution. On an NVIDIA L4 (RF-DETR Nano, 384 px, bf16 autocast, real COCO val2017 images, five alternating fresh-process pairs), the eager training step at batch 56 — the largest that fits — went from 1245.1 ms to 1123.5 ms (−9.8%, ranges disjoint; −9.6% on a second VM) and peak allocated memory from 19.46 to 18.33 GiB; a public <code>RFDETRNano().train()</code> call at batch 32 with the default multi-scale recipe (7 workers, one epoch over 5000 images) went from 181.3 s to 170.7 s (−5.8%). The default batch-4 recipe, loader-bound on that GPU, stays within its run-to-run spread (139.5 s vs 138.9 s for a two-epoch <code>train()</code> call). (<a href="https://github.com/roboflow/rf-detr/pull/1554">#1554</a>)</p>
+</li>
+<li>
+<p>Local <code>.jpg</code>, <code>.jpeg</code> and <code>.png</code> paths passed to <code>predict()</code> now use torchvision's native decoder instead of materializing an intermediate Pillow image. A natively decoded file is read once, and Pillow validates its header and decompression-bomb limit on those same bytes. Animated PNGs, files that are not JPEG or PNG despite their name, 16-bit PNGs (and any decode that is not uint8) and files the native decoder rejects fall back to Pillow, which opens the path again. Local files also fall back to Pillow when torchvision's image codecs, deprecated since torchvision 0.29, are unavailable or their deprecation warning is raised as an error, so <code>import rfdetr</code> and <code>predict()</code> keep working once torchvision removes them. On an NVIDIA L4, pretrained Nano FP16 TorchScript inference with <code>include_source_image=False</code> over a batch of eight real COCO images fell from a median of 32.76 ms to 28.36 ms end to end across seven independent runs (13.41% median paired reduction, 12.61-13.77% range); detections were identical. (<a href="https://github.com/roboflow/rf-detr/pull/1550">#1550</a>)</p>
+</li>
+<li>
+<p>YOLO split directories must stay inside the dataset root however they are reached. The containment rule applied only to paths declared in <code>data.yaml</code>, so a declared <code>train: images/train</code> pointing at mounted storage was refused while a <code>train/images</code> symlink to that same storage was read — the guard rejected by layout rather than by destination. Format detection and <code>is_valid_yolo_dataset</code> now refuse a conventional split directory resolving outside the root, and <code>build_roboflow_from_yolo</code> raises <code>ValueError</code> naming it. A dataset whose entire root is a symlink is unaffected, because containment resolves both sides; only an individual split escaping its own root is refused. (<a href="https://github.com/roboflow/rf-detr/pull/1570">#1570</a>)</p>
+</li>
+<li>
+<p>ONNX exports no longer contain a single-input <code>Concat</code> or a <code>Concat</code> of an empty tensor where the two-stage selection assembles the decoder queries, and the segmentation head's export path emits <code>MatMul</code> instead of <code>Einsum</code>. ONNX Runtime's CoreML execution provider rejects all three, so each split the exported graph into another CoreML partition with a CPU round-trip in between. On an Apple M4 Max with onnxruntime 1.30 (<code>ModelFormat=MLProgram</code>, <code>MLComputeUnits=CPUAndGPU</code>), each graph now has two CoreML partitions, leaving only the CPU-resident top-k selection between them: RF-DETR Nano runs in 8.3 ms instead of 9.3 ms (4 partitions before), Large in 19.4 ms instead of 19.9 ms (4 before), and Seg Nano in 16.5 ms instead of 18.9 ms (5 before). All figures were measured with a static batch; <code>dynamic_batch=True</code> was not measured and is not expected to match, because <code>forward_export</code>'s reshape then takes a runtime-computed shape instead of a constant. Exported outputs are bit-identical on ONNX Runtime's CPU provider, and eager training and <code>predict()</code> are unchanged; <code>RFDETR.inference()</code> switches the model into export mode, so it also takes the segmentation head's <code>MatMul</code> path — output identical on CPU (fp32/fp64/bf16 verified; CUDA/fp16 unverified). (<a href="https://github.com/roboflow/rf-detr/pull/1566">#1566</a>)</p>
 </li>
 <li>
 <p><code>format</code> in <code>RFDETR.export()</code> is case-insensitive, as <code>backend</code> already was: <code>format="ONNX"</code> exports ONNX instead of raising <code>Unsupported export format 'ONNX'</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1556">#1556</a>)</p>
@@ -2732,84 +2854,6 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>
 <p><code>format="coreai", coreai_precision="float16"</code> warns for keypoint models: that <code>.aimodel</code> terminates the process when Core AI runs it on the Neural Engine, which iOS and iPadOS pick for float16 by default. (<a href="https://github.com/roboflow/rf-detr/pull/1556">#1556</a>)</p>
 </li>
-<li>
-<p>Single-GPU compiled BF16 detection training now combines global-norm clipping, AdamW, and the per-step EMA update in one multi-tensor Triton path. The existing public configuration selects it automatically only for the built-in AdamW optimizer with <code>compile=True</code>, <code>fused_optimizer=True</code>, <code>use_ema=True</code>, and <code>ema_update_interval=1</code> on one device with the default <code>devices=1</code> and <code>strategy="auto"</code>; other <code>devices</code> or <code>strategy</code> values and older Triton versions retain the standard PyTorch path, and a step whose tensor layout the kernels do not support applies clipped, non-fused AdamW instead. On an NVIDIA L4, a public <code>RFDETRNano.train()</code> run over COCO128 (default batch 4, 384 px) improved the median settled training epoch from 3.593 s to 3.135 s across five independent pairs (12.66%, range 11.55-16.86%) against an explicitly optimized PyTorch baseline using foreach gradient clipping, fused AdamW, one-call foreach EMA, and a host-side EMA counter. The paired reduction for the complete six-epoch call with populated compile caches had a 5.56% median (range 3.33-10.99%); one-time setup and final validation dilute the recurring-epoch saving. Full-dataset accuracy and larger variants were not measured.</p>
-</li>
-</ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p>A YOLO dataset stored below a directory named <code>images</code> (for example <code>/data/images/coco8</code>) now loads the splits its <code>data.yaml</code> declares. The labels directory was derived by swapping the first <code>images</code> segment of the absolute split path for <code>labels</code>, so <code>images/val</code> resolved its labels to <code>/data/labels/coco8/images/val</code>. That directory does not exist, so resolution fell back to the Roboflow <code>valid/images</code> convention and training failed on a missing directory. The resolver now scans <code>images</code> segments right to left and swaps the rightmost one with an existing <code>labels</code> sibling, as Ultralytics does, rejecting any candidate that would resolve outside the dataset root. (<a href="https://github.com/roboflow/rf-detr/pull/1557">#1557</a>)</p>
-</li>
-<li>
-<p><code>last.ckpt</code> and <code>checkpoint_&lt;epoch&gt;.ckpt</code> now record the model they hold, the way the best <code>.pth</code> files do: the training config with the dataset's class names, the model class name, the model config and the rfdetr version. <code>RFDETR.from_checkpoint("output/last.ckpt")</code> failed with <code>KeyError: 'args'</code> and now rebuilds the model at its trained resolution and architecture, with that epoch's non-EMA weights. <code>RFDETRSmall(pretrain_weights="output/last.ckpt")</code> came back with the COCO class names and now has the dataset's. Files written by 1.11.0 and earlier can't be repaired in place: <code>from_checkpoint</code> rejects them with a <code>ValueError</code> that points at <code>checkpoint_best_ema.pth</code> from the same run and at <code>training_config.json</code>, and resuming training from them is unchanged. A training config value that a weights-only <code>torch.load</code> cannot read, such as a <code>pathlib.Path</code> in <code>notes</code>, is stored as its <code>repr()</code> with a warning, so <code>resume="output/last.ckpt"</code> keeps working. (<a href="https://github.com/roboflow/rf-detr/issues/1552">#1552</a>)</p>
-</li>
-<li>
-<p>Training on COCO-format datasets of PNG, BMP or other non-JPEG images (and of JPEG files when <code>simplejpeg</code> is not installed) loads data as fast as 1.10 again. Since 1.11.0, <code>CocoDetection</code> copied every image Pillow decoded into a NumPy array and straight back into a PIL image. On Windows 11 (Ryzen 7 7800X3D), the train DataLoader with the default 2 workers and a batch size of 8 (<code>RFDETRLarge</code>, <code>resolution=1120</code>) took up to 27% longer per batch than 1.10.1 on 4096-px BMP files and 11% longer on 4096-px PNG files; JPEG files, which <code>simplejpeg</code> decodes, were not affected. <code>CocoDetection</code> and the WebDataset shard reader now use the image Pillow decoded as is. (<a href="https://github.com/roboflow/rf-detr/issues/1544">#1544</a>)</p>
-</li>
-<li>
-<p><code>format="coreai"</code> works with <code>coreai-torch</code> 0.4.3, which runs the optimization passes inside <code>TorchConverter.to_coreai()</code> and removed <code>AIProgram.optimize()</code>; with 1.11.0 a fresh <code>pip install "rfdetr[coreai]"</code> resolved 0.4.3 and every Core AI export failed with <code>'AIProgram' object has no attribute 'optimize'</code>. The <code>[coreai]</code> extra now pins <code>coreai-torch==0.4.3</code> and installs on Python 3.11 to 3.14, since <code>coreai-core</code> 1.0.0b3 ships cp314 wheels. It is declared as a uv conflict with <code>[tflite]</code>, whose <code>onnx2tf</code> pins cannot meet <code>coreai-core</code>'s <code>numpy&gt;=2.3</code>.</p>
-</li>
-<li>
-<p><code>RFDETR.from_checkpoint("checkpoint_best_total.pth")</code> now rebuilds the model the way it was trained. <code>strip_checkpoint</code> dropped <code>model_config</code>, so the reload fell back to class defaults with no warning: a Nano trained at <code>resolution=224</code> came back at 384 with boxes up to 193 px off, and a keypoint model trained at 552 came back at 576. <code>num_select</code> was lost the same way and <code>dec_layers</code> only logged a generic partial-load warning. The Roboflow SDK upload goes through the same call. <code>from_checkpoint</code> no longer takes <code>device</code> from the checkpoint either, so GPU-trained checkpoints load and predict on a CPU-only machine (<code>checkpoint_best_ema.pth</code> and <code>checkpoint_best_regular.pth</code> failed there before). Best-total files written by 1.11.0 and earlier can't be repaired in place; <code>from_checkpoint</code> warns about them and points at the unstripped checkpoint next to them and at <code>training_config.json</code>. (<a href="https://github.com/roboflow/rf-detr/issues/1533">#1533</a>)</p>
-</li>
-<li>
-<p>Keypoint models trained in fp16 now clip the real gradient. The manual-optimization path clipped before Lightning unscaled the gradients, so the optimizer got <code>clip_max_norm / 65536</code> (1.5e-6 instead of 0.1 with the defaults) and training quietly stalled. Clipping now happens in <code>on_before_optimizer_step</code>, after the unscale. This affects keypoint runs in <code>16-mixed</code>: Apple Silicon with the default AMP settings, CUDA with <code>amp_dtype="fp16"</code>, and T4/V100 once <code>amp_dtype="auto"</code> picks fp16 there (<a href="https://github.com/roboflow/rf-detr/issues/1535">#1535</a>). Detection and segmentation were never affected. (<a href="https://github.com/roboflow/rf-detr/issues/1536">#1536</a>)</p>
-<ul>
-<li>Multi-device XLA keypoint training now clips the reduced gradients; this path does not depend on GradScaler unscaling.</li>
-<li>Callbacks now see unclipped gradients in the keypoint <code>on_before_optimizer_step</code> path, matching Lightning's automatic-optimization hook order.</li>
-</ul>
-</li>
-<li>
-<p><code>amp_dtype="auto"</code> (the default) now trains in fp16 on NVIDIA GPUs without native bf16, such as the T4 and V100. <code>torch.cuda.is_bf16_supported()</code> counts emulated bf16, so with torch 2.3 and newer those GPUs got <code>bf16-mixed</code>: on a Colab T4 an RF-DETR Nano training step took 443 ms, against 226 ms in fp16 and 386 ms in fp32. <code>"auto"</code> now picks bf16 only when every GPU the run trains on has it natively (Ampere and newer), as the docs describe. On older GPUs that means training and validation run in fp16 with a GradScaler, the <code>batch_size="auto"</code> probe measures in fp16, and <code>cuda_graphs=True</code> stays eager. An explicit <code>amp_dtype="bf16"</code> is still honoured there, now with a warning that it is emulated. (<a href="https://github.com/roboflow/rf-detr/issues/1535">#1535</a>)</p>
-<ul>
-<li><strong>Loss curves and checkpoints from before and after this change are not directly comparable on pre-Ampere GPUs</strong> (different autocast dtype, GradScaler now active, fused AdamW path now off).</li>
-<li>The roughly 2x per-step timing above (443 ms vs. 226 ms) is a single RF-DETR Nano training step measured at default <code>compile</code>/<code>use_ema</code> settings (<code>compile=False</code>, <code>use_ema=True</code>), not an accuracy or throughput claim. Pre-Ampere GPUs also lose fused AdamW (<code>_fused_adamw_env_eligible</code>) and the Triton fused AdamW+EMA kernel (<code>_use_fused_adamw_ema</code>): both require the trainer's resolved precision to be a BF16 variant, which fp16 (<code>16-mixed</code>) is not — a required-for-correctness side effect of this fix, not a regression.</li>
-</ul>
-</li>
-<li>
-<p>Validation and test mAP now ignore detections on COCO crowd regions (<code>iscrowd=1</code>) the way pycocotools does. The crowd annotations were dropped before the metric saw them, so a detection inside a crowd counted as a false positive.</p>
-<ul>
-<li>Pretrained RF-DETR Nano on COCO val2017 scored 0.4802 mAP through <code>evaluate()</code> and now scores 0.4842, the same as pycocotools on the same predictions.</li>
-<li>Training is unchanged, and only COCO-format datasets with crowd labels get different numbers — <strong>runs from before and after this change are not directly comparable on crowd-labelled COCO data.</strong></li>
-<li>Not covered: WebDataset shards and a hand-built <code>Trainer.validate(model, dataloaders=...)</code> call with no datamodule attached are both still scored the old way, and <code>val/F1</code> only ignores a detection whose IoU with the crowd is at least 0.5 (measured against the crowd box for detection, the crowd mask for segmentation). (<a href="https://github.com/roboflow/rf-detr/issues/1531">#1531</a>)</li>
-</ul>
-</li>
-<li>
-<p><code>TRTInference</code> (<code>rfdetr.export._tensorrt.inference</code>, the runtime behind <code>python -m rfdetr.export.benchmark</code>) now refuses an input TensorRT would misread, instead of returning wrong detections. TensorRT reads each input straight off its pointer, so a tensor on another device, with a dtype other than the engine's input dtype, or not contiguous (<code>channels_last</code>, a slice) now raises <code>ValueError</code> naming the fix. On a COCO val2017 image, a <code>channels_last</code> or float16 input took pretrained RF-DETR Nano from 13 detections above 0.5 to none, and a CPU tensor ended in <code>cudaError 700: an illegal memory access</code>, which leaves the CUDA context unusable. <strong>Code that passed such tensors now gets an error; convert them to the dtype and device it names, with <code>.to(...)</code>, and call <code>.contiguous()</code> on a non-contiguous one.</strong> When only the batch is wrong, the refusal now names export settings that work as written, <code>dynamic_batch=True, max_batch_size=N</code> with an <code>N</code> that covers both the refused batch and the engine's own, instead of <code>dynamic_batch=True</code> alone, which the TensorRT export refuses. It gives that advice only when the batch alone exceeds a dynamic engine's profile, or a non-empty batch is the one thing that differs from a static engine; batch 0 and a wrong image size used to get the batch advice too.</p>
-</li>
-<li>
-<p><code>TRTInference.build_engine</code> no longer truncates the target <code>.trt</code> when TensorRT cannot build the engine, which destroyed any engine already at that path. It opened the file before checking the result, then failed with <code>TypeError: a bytes-like object is required, not 'NoneType'</code>; it now raises <code>RuntimeError</code> first. A dynamic-batch ONNX is one way to get there, since this builder declares no optimization profile; <code>RFDETR.export(format="tensorrt", dynamic_batch=True, max_batch_size=N)</code> builds those.</p>
-</li>
-<li>
-<p><code>TRTInference</code> reports an engine TensorRT cannot deserialize (built by another TensorRT version or GPU architecture, or a truncated file) as a <code>RuntimeError</code> that names the file and says to rebuild it on this machine, instead of <code>AttributeError: 'NoneType' object has no attribute 'create_execution_context'</code>. An execution context TensorRT cannot create now raises <code>RuntimeError</code> too, instead of an <code>AttributeError</code> on <code>None</code>.</p>
-</li>
-<li>
-<p><code>TRTInference(device=...)</code> now loads and runs the engine on that device. Before, only its output buffers went there and TensorRT used the current device, <code>cuda:0</code> unless the caller switched, so <code>python -m rfdetr.export.benchmark --device 1</code> mixed two GPUs in one execution context. <code>synchronize()</code> and the benchmark's latency timer now wait on that device too, and a non-CUDA <code>device</code> raises <code>ValueError</code> instead of putting the engine's buffers in host memory. Checked with unit tests only: no multi-GPU machine was available. A caller that passed <code>device="cuda:1"</code> while feeding inputs allocated on another device now gets the input-refusal <code>ValueError</code> above rather than the device fix on its own — move the inputs with <code>.to("cuda:1")</code> too.</p>
-</li>
-<li>
-<p>A checkpoint trained with <code>backbone_lora=True</code> reloads with its trained backbone. <code>RFDETR.from_checkpoint()</code>, <code>RFDETR&lt;Size&gt;(pretrain_weights=...)</code> and <code>train()</code> loaded the checkpoint before wrapping the encoder with LoRA. The checkpoint stores the encoder under PEFT names, so none of those weights matched and the encoder stayed at random init. <code>evaluate()</code> scored about 0, <code>predict()</code> and exports ran with an untrained backbone, and training restarted the encoder. The only sign was a partial-load warning (<code>223 model parameter(s) not in checkpoint … 331 checkpoint key(s) not consumed</code>).</p>
-<ul>
-<li>The encoder is now wrapped before such a checkpoint loads. With <code>backbone_lora=True</code> it keeps the trained adapters. The flag can be passed explicitly, or <code>from_checkpoint()</code> restores it from a checkpoint's <code>model_config</code>; <code>checkpoint_best_total.pth</code> does not carry one yet (#1533), so pass the flag for that file. With <code>backbone_lora=False</code>, the constructor default, the adapters are merged into the encoder weights, and the encoder keeps the trainable flags of a model built without LoRA.</li>
-<li>Without <code>peft</code> installed, loading such a checkpoint as <code>pretrain_weights</code> or through <code>from_checkpoint()</code> now raises <code>ImportError</code>. Before, a model configured without LoRA loaded it with a random encoder instead. The patch-size check added in #965 now also covers these checkpoints.</li>
-<li>Measured case: RF-DETR Large at 640 px, LoRA fine-tuned on 262 COCO train2017 person images. Reloaded and evaluated on 300 val2017 person images, it scored val mAP50:95 0.0001 before this fix and 0.6221 after, the same as the in-memory model. (<a href="https://github.com/roboflow/rf-detr/issues/1540">#1540</a>)</li>
-</ul>
-</li>
-<li>
-<p><code>RFDETR.export(format="tensorrt")</code> without the <code>tensorrt</code> package installed now fails before the ONNX export, with an <code>ImportError</code> that says to run <code>pip install rfdetr[tensorrt]</code>. <code>rfdetr[onnx]</code> installs <a href="https://pypi.org/project/polygraphy/">Polygraphy</a>, which imports <code>tensorrt</code> only once a build starts, so the exporter mistook it for a complete TensorRT install. It then wrote the full <code>.onnx</code> file and failed with a Polygraphy error suggesting <code>POLYGRAPHY_AUTOINSTALL_DEPS=1</code>. Because the check now runs before Polygraphy does, setting <code>POLYGRAPHY_AUTOINSTALL_DEPS=1</code> no longer installs <code>tensorrt</code> in the middle of an export; install the extra instead. (<a href="https://github.com/roboflow/rf-detr/issues/1541">#1541</a>)</p>
-</li>
-<li>
-<p><code>TensorRTExporter.build_engine</code> on an <code>.onnx</code> file exported with <code>dynamic_batch=True</code> now raises <code>ValueError</code> unless its <code>TensorRTConfig</code> sets <code>dynamic_batch=True</code> and <code>max_batch_size</code>. Before, Polygraphy fixed the dynamic batch axis to 1 with only a warning, and the engine accepted batch 1 only. <code>RFDETR.export(format="tensorrt")</code> is not affected, since it applies one <code>dynamic_batch</code> setting to both the ONNX graph and the engine. (<a href="https://github.com/roboflow/rf-detr/issues/1541">#1541</a>)</p>
-</li>
-<li>
-<p><code>compile=True</code> training with the default <code>multi_scale</code> no longer compiles a new transformer graph for every input resolution. Under <code>torch.compile(dynamic=True)</code> two constructs specialised the feature-map height and width to their traced values: <code>spatial_shapes</code> was built with <code>torch.as_tensor</code> of the Python-int <code>(H, W)</code> pairs (the compile branch added in #1411), and the encoder-proposal grid used <code>torch.linspace(0, n - 1, n)</code>. Each new multi-scale resolution therefore recompiled the transformer until Dynamo's recompile limit (8) left the remaining resolutions running eager; for RF-DETR Nano on an RTX 5070 with torch 2.14 that was the 9th to 11th scale, 54 of 200 training steps. <code>spatial_shapes</code> is now stacked from 0-d tensors, which keeps the sizes symbolic, and the grid uses <code>torch.arange</code>, which produces the same values, so the transformer stays compiled at every scale. The <code>spatial_shapes</code> change applies only under <code>torch.compile</code>; eager, TorchScript/ONNX, <code>torch.export</code> on torch 2.7+ and eager CUDA-graph capture (<code>cuda_graphs=True</code> without <code>compile</code>) build it as before. The backbone projector still recompiles per resolution on CUDA, because Inductor's convolution-backward lowering (added in pytorch/pytorch#178945) pins the strides of convolutions that need an input gradient. (<a href="https://github.com/roboflow/rf-detr/issues/1410">#1410</a>)</p>
-</li>
-<li>
-<p>A COCO segmentation dataset whose images mix annotations with and without a <code>segmentation</code> key now keeps every mask, including when every annotation in the image is box-only. <code>ConvertCoco</code> only looked at the first annotation of an image: when that one was box-only, the image got no masks at all while its boxes were kept, so the target reached training with, for example, 2 boxes and 0 masks. Reversing the annotation order gave 2 masks, and an image with no segmented annotations at all still returned an empty <code>(0, H, W)</code> mask tensor against its kept boxes. Masks are now built for every annotation unconditionally, so <code>masks.shape[0]</code> always matches <code>boxes.shape[0]</code>; a box-only annotation gets an empty mask, as it already did when it was not listed first. An empty mask is a real training target, not a neutral placeholder — a box-only instance is supervised toward no foreground, so annotate every instance intended for segmentation, or keep box-only images out of the segmentation split.</p>
-</li>
-</ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
-<ul>
 <li>
 <p>Single-GPU compiled BF16 detection training now combines global-norm clipping, AdamW, and the per-step EMA update in one multi-tensor Triton path. The existing public configuration selects it automatically only for the built-in AdamW optimizer with <code>compile=True</code>, <code>fused_optimizer=True</code>, <code>use_ema=True</code>, and <code>ema_update_interval=1</code> on one device with the default <code>devices=1</code> and <code>strategy="auto"</code>; other <code>devices</code> or <code>strategy</code> values and older Triton versions retain the standard PyTorch path, and a step whose tensor layout the kernels do not support applies clipped, non-fused AdamW instead. On an NVIDIA L4, a public <code>RFDETRNano.train()</code> run over COCO128 (default batch 4, 384 px) improved the median settled training epoch from 3.593 s to 3.135 s across five independent pairs (12.66%, range 11.55-16.86%) against an explicitly optimized PyTorch baseline using foreach gradient clipping, fused AdamW, one-call foreach EMA, and a host-side EMA counter. The paired reduction for the complete six-epoch call with populated compile caches had a 5.56% median (range 3.33-10.99%); one-time setup and final validation dilute the recurring-epoch saving. Full-dataset accuracy and larger variants were not measured.</p>
 </li>
@@ -2825,13 +2869,106 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>
 <p><code>RFDETR.export(format="tensorrt", dynamic_batch=True)</code> accepts a numpy integer <code>batch_size</code>. TensorRT's optimization-profile check refused one because it is not a Python <code>int</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1556">#1556</a>)</p>
 </li>
+<li>
+<p><code>OpenVINOInference</code> now defaults <code>inference_precision</code> to <code>"f32"</code>, so latency and accuracy no longer depend on the device's default compute precision. Pass <code>inference_precision=None</code> to restore the device-default speed. It also takes a new <code>config</code> argument, a mapping of further <code>compile_model</code> properties (e.g. <code>{"INFERENCE_NUM_THREADS": 4}</code>) applied after <code>inference_precision</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1585">#1585</a>)</p>
+</li>
+<li>
+<p><code>format="tflite"</code> warns with a <code>UserWarning</code> when <code>calibration_data</code> is passed, replacing the INFO log: the argument is not consumed when building the generated <code>.tflite</code> models. (<a href="https://github.com/roboflow/rf-detr/pull/1585">#1585</a>)</p>
+</li>
+<li>
+<p><code>format="openvino", dynamic_batch=True</code> is still refused, but the message now explains that the converted IR already has a dynamic input shape, so one export runs at any batch size. (<a href="https://github.com/roboflow/rf-detr/pull/1585">#1585</a>)</p>
+</li>
 </ul>
-<h3 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>RFDETR.export()</code> checks <code>batch_size</code> before any other work: <code>batch_size=True</code>, which used to export a batch of 1, now raises <code>ValueError</code>, as does any other value that is not a positive integer (<code>2.0</code>, <code>"2"</code> and <code>None</code> raised a <code>TypeError</code> from inside the export). A numpy integer is passed on as a plain <code>int</code>.</li>
+<li>
+<p><code>format="coreml"</code> with <code>coreml_precision="float16"</code> no longer loses about 3 box AP on the Apple Neural Engine. The bundle was converted for iOS 16, whose program runs the deformable-attention <code>resample</code> on the Neural Engine in fp16; it is now converted for iOS 15, where that op stays on the CPU, which also matches what the ExecuTorch CoreML delegate lowers. Measured on an Apple M3 Pro (macOS 27.0.1, pretrained models, all 5000 COCO val2017 images) under <code>CPU_AND_NE</code>: <code>RFDETRNano</code> 45.06 → 48.04 AP (eager 48.03) and <code>RFDETRSmall</code> 50.70 → 52.76 AP (eager 52.80); <code>CPU_AND_GPU</code> was already unaffected, and fp32 scores 48.03 on <code>RFDETRNano</code> either way. The cost is single-image latency on the Neural Engine, <code>RFDETRNano</code> fp16 under <code>CPU_AND_NE</code> (p50, batch 1): 10.8 → 12.7 ms back to back and 18.3 → 24.9 ms with 200 ms between passes; <code>RFDETRSegNano</code> 18.1 → 20.3 ms and 30.4 → 38.8 ms (the pairs were measured in the same session). Bundles now declare iOS 15 / macOS 12 as the minimum OS, down from iOS 16 / macOS 13; the output dtype change this brings is listed under Breaking Changes. (<a href="https://github.com/roboflow/rf-detr/issues/1024">#1024</a>)</p>
+</li>
+<li>
+<p><code>RFDETR.evaluate()</code> no longer downloads DINOv2 pretrained weights when it rebuilds <code>RFDETRBase</code> or the deprecated <code>Large</code>, nor a registered encoder's upstream weights, so offline evaluation of those models works.</p>
+</li>
+<li>
+<p>Class names in the per-class metrics table printed after validation and test are no longer interpreted as Rich markup or emoji codes. Each name was passed to Rich as a plain string, which Rich parses as console markup and emoji codes, so <code>helmet[red]</code> printed as <code>helmet</code>, <code>car [parked]</code> as <code>car</code>, <code>price:dollar:</code> with an emoji in place of <code>:dollar:</code>, and a name containing a stray closing tag such as <code>sign[/]</code> raised <code>rich.errors.MarkupError</code> out of <code>COCOEvalCallback</code>, ending training at the first evaluated validation epoch. A non-string class name, such as <code>null</code> in an annotation file, is printed as text instead of raising. (<a href="https://github.com/roboflow/rf-detr/pull/1598">#1598</a>)</p>
+</li>
+<li>
+<p>Keypoints flipped by the torchvision augmentation backend now land where the flipped image content is. <code>RandomHorizontalFlip</code> mirrored keypoints with <code>width - 1 - x</code>, which assumes integer pixel centres, while RF-DETR keypoints are continuous and boxes already flip with <code>width - x</code>, so every flipped keypoint sat 1 px left of the image content. Visible keypoints of flipped training samples move 1 px to the right. A keypoint exactly on the right or bottom image edge (<code>x == width</code> or <code>y == height</code>) now stays visible through <code>Resize</code>, crops and the flip, so both edges survive a flip (<code>x = 0</code> maps to <code>x = width</code>); before, such a point was cleared. <code>Resize</code> scales keypoints as <code>x * new_size / old_size</code>, which keeps an edge point exact in float32. Boxes, masks, inference and export are unchanged. The Albumentations path, which is the default CPU backend whenever <code>rfdetr[augment]</code> is installed, is not changed and still differs in two ways: it flips keypoints with <code>width - 1 - x</code>, and it clears a keypoint at <code>x == width</code> or <code>y == height</code>, so flipped keypoint labels differ by 1 px between the two CPU backends until a follow-up aligns them. The GPU (Kornia) path leaves keypoint coordinates unchanged. (<a href="https://github.com/roboflow/rf-detr/pull/1597">#1597</a>)</p>
+</li>
+<li>
+<p>Downloaded pretrained weights, <code>checkpoint_best_total.pth</code> and <code>training_config.json</code> are readable by other users again. Each is written to a temporary file and renamed into place, and <code>tempfile</code> creates that file with mode <code>0600</code>, which the rename kept, so all three ended up owner-only instead of following the umask like a new file written with <code>open()</code> (<code>0644</code> under the usual <code>022</code>). A weights cache shared through <code>RF_HOME</code>, or filled at image build time and read by another user at runtime, failed with <code>PermissionError</code>, and <code>checkpoint_best_total.pth</code> got a different mode from the <code>checkpoint_best_regular.pth</code> or <code>checkpoint_best_ema.pth</code> it is copied from. The temporary files are now created with mode <code>0666</code> minus the umask, and overwriting an existing file keeps its mode (e.g. <code>strip_checkpoint</code> on a file chmod-ed <code>0600</code> stays <code>0600</code>). (<a href="https://github.com/roboflow/rf-detr/pull/1582">#1582</a>)</p>
+</li>
+<li>
+<p>Keypoint pipelines composed from <code>Sequential</code>, <code>OneOf</code>, and <code>SomeOf</code> Albumentations containers now swap paired joint identities only after an odd number of applied horizontal flips, including repeated selection by <code>SomeOf(replace=True)</code>. Trees containing any container type outside that recognised set -- programmatic containers such as <code>OneOrOther</code>, subclasses of the recognised container classes, and any other unknown container -- fall back to replay-based handling, which cannot distinguish repeated draws of the same child. (<a href="https://github.com/roboflow/rf-detr/pull/1569">#1569</a>)</p>
+</li>
+<li>
+<p>The segmentation head's depthwise convolution no longer leaves cuDNN disabled for the whole process when several threads run it at once. It wraps <code>F.conv2d</code> in <code>torch.backends.cudnn.flags(enabled=False)</code>, which saves the current value on entry and restores it on exit but is process-global and not thread-safe, so a second thread entering while the first was inside saved <code>False</code> and restored it last. After that every convolution in the process took the non-cuDNN path with no error or warning, and detections near the score threshold changed (24 instead of 25 on one real frame, with the flag as the only difference). The forward and backward scopes now share a lock, and a CPU input skips them entirely — ATen reads the flag only for a CUDA input, so the lock there only serialised independent convolutions. (<a href="https://github.com/roboflow/rf-detr/pull/1565">#1565</a>)</p>
+</li>
+<li>
+<p>The deferred CPU-to-accelerator weight move on the first <code>predict()</code>, <code>inference()</code> or <code>export()</code> call is now serialised. Several threads sharing one model (for example one channel per thread) could reach that call together and run overlapping in-place <code>nn.Module.to()</code> calls on the same module. On a cold RF-DETR segmentation model, four threads calling <code>predict()</code> at once left 13 of 573 <code>state_dict</code> tensors corrupted, with no exception or warning, and the model then returned no detections on every frame. The device check and the move now both run under a lock, so a caller that arrives mid-move waits for it to finish instead of starting inference on a half-moved model. <code>export()</code>'s CPU staging move and its restore, and <code>evaluate()</code>'s move of the live weights to CPU for the eval transplant, take that same lock; each individual move is serialised, the span between a staging move and its restore is not. The lock is per model — held on the <code>nn.Module</code> being moved, so a cold move of one model does not stall a call on another, and two <code>RFDETR</code> instances sharing one module still serialise against each other.</p>
+</li>
+<li>
+<p><code>RFDETR.predict()</code> now accepts NumPy views with negative strides, such as the BGR-to-RGB <code>frame[:, :, ::-1]</code> in the video file, webcam and RTSP examples of <code>docs/learn/pretrained.md</code>. Both the uint8 and the float conversion call <code>torch.from_numpy</code>, which rejects negative strides, so those examples raised <code>ValueError: At least one stride in the given numpy array is negative</code> on their first frame. Only arrays with a negative stride are copied now, and with <code>include_source_image</code> on, a uint8 view reuses the copy already kept as <code>source_image</code>; contiguous, positive-step and broadcast arrays still convert without an extra copy. A flipped frame gives the same detections as its contiguous copy. (<a href="https://github.com/roboflow/rf-detr/pull/1573">#1573</a>)</p>
+</li>
+<li>
+<p><code>class_names</code> that include a Roboflow export's top-level category now stop training with a <code>ValueError</code> instead of shifting every class name by one. Roboflow COCO exports list that category first, for example <code>animals</code> above <code>cat</code>, <code>dog</code> and <code>horse</code>. Since 1.9.2 it is not one of the model's classes, so a list read from every category gave each class its neighbour's name, in checkpoints and in <code>predict()</code> output, with no warning. <code>RFDETRDataModule.setup("fit")</code> now compares <code>class_names</code> with the dataset's names, and <code>RFDETR.train()</code> runs the same comparison up front, before it writes <code>training_config.json</code> and before <code>trainer.fit()</code> starts a <code>wandb</code>/MLflow run that a later rejection would leave behind as an orphan crashed run. Extra names above a class raise and say which list to pass, naming each one, whether they lead the list or sit between two real classes; the dataset's own names in another order warn, as does any other difference in length; a renamed list of the right length passes. The comparison applies to datasets whose labels are remapped category ids — a Roboflow COCO export, or a webdataset packed with <code>category_ids="remap"</code>. A raw-id dataset such as <code>dataset_file="coco"</code> labels each object by its source category id, so the <code>class_names</code> that is correct there carries a placeholder for the unused id <code>0</code>, and it is left alone rather than rejected as a shift. Every warning is a <code>WARNING</code> on the <code>rf-detr</code> log, emitted once per run rather than once per rank. The fine-tune detection and segmentation, custom optimizer and PyTorch Lightning cookbooks built their class names that way and now leave the category out.</p>
+</li>
+</ul>
+<h2 id="1111-2026-09-30">[1.11.1] — 2026-09-30<a class="headerlink" href="#1111-2026-09-30" title="Permanent link">&para;</a></h2>
+<h3 id="breaking-changes_1">Breaking Changes<a class="headerlink" href="#breaking-changes_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>RFDETRModelModule.clip_gradients</code> renamed to <code>configure_gradient_clipping</code> (moves the keypoint fp16 clip fix onto the correct Lightning hook); <code>clip_gradients</code> reverts to <code>LightningModule</code>'s base impl (Lightning: "do not override this method"). Only affects direct callers of <code>clip_gradients</code>, a <code>super().clip_gradients(...)</code> call inside an override, or an override on the fused-AdamW path — a self-contained override still runs on the non-fused path via <code>self.clip_gradients(...)</code> dispatch. See <code>MIGRATION.md</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1537">#1537</a>, <a href="https://github.com/roboflow/rf-detr/pull/1549">#1549</a>)</li>
+</ul>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Replaced 4 per-format export cookbooks (<code>export-coreml</code>, <code>export-tensorrt</code>, <code>export-executorch</code>, <code>export-tflite</code>) and <code>inference-latency-benchmark</code> with 4 per-hardware cookbooks — <code>export-cuda</code>, <code>export-cpu</code>, <code>export-mobile</code>, <code>export-apple</code> — each exporting every format for that hardware, running inference on it, and benchmarking against a PyTorch baseline. Adds first cookbook coverage for ONNX, OpenVINO, LiteRT, Core AI. Per-format docs (<code>docs/exports/*.md</code>) unchanged. Added <code>rfdetr.export._benchmark</code> (private): <code>measure_latency</code> (CUDA-event timing on <code>device="cuda"</code>, else <code>time.perf_counter</code>) and <code>measure_memory</code> (host RSS delta via <code>psutil</code>, or CUDA free-memory delta via <code>torch.cuda.mem_get_info()</code>), shared by all 4 cookbooks; replaces and removes <code>rfdetr.export._onnx.inference._onnx_runtime</code>. Each cookbook benchmarks default config + one precision variant per exporter — OpenVINO fp32/fp16 IR, TensorRT auto/fp32, CoreML/Core AI fp32/fp16, TFLite fp32/fp16/dynamic-range INT8; ONNX and LiteRT stay single-row (no precision setting). (<a href="https://github.com/roboflow/rf-detr/pull/1530">#1530</a>)</li>
+<li><code>RFDETR.from_checkpoint()</code> no longer restores <code>device</code> from <code>model_config</code> — loading host's default wins; pass <code>device=</code> explicitly. Every other <code>model_config</code> field except <code>pretrain_weights</code> still restored, caller kwargs take precedence. (<a href="https://github.com/roboflow/rf-detr/pull/1534">#1534</a>, <a href="https://github.com/roboflow/rf-detr/pull/1561">#1561</a>)</li>
+<li><code>TrainConfig.clip_max_norm</code> now rejects a negative value at construction (<code>Field(default=0.1, ge=0.0)</code>) — was silently unclipped for the whole run. (<a href="https://github.com/roboflow/rf-detr/pull/1537">#1537</a>, <a href="https://github.com/roboflow/rf-detr/pull/1549">#1549</a>)</li>
+</ul>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>YOLO dataset under a dir literally named <code>images</code> (e.g. <code>/data/images/coco8</code>) now loads correctly. Labels dir was derived by swapping the <em>first</em> <code>images</code> segment for <code>labels</code>, so <code>images/val</code> resolved to nonexistent <code>/data/labels/coco8/images/val</code>, fell back to the Roboflow <code>valid/images</code> convention, and training failed. Resolver now swaps the <em>rightmost</em> <code>images</code> segment with an existing <code>labels</code> sibling (Ultralytics behavior), rejecting candidates outside the dataset root. (<a href="https://github.com/roboflow/rf-detr/pull/1557">#1557</a>)</li>
+<li><code>last.ckpt</code>/<code>checkpoint_&lt;epoch&gt;.ckpt</code> now record training config (dataset class names), model class, model config, rfdetr version — same as best <code>.pth</code> files. <code>from_checkpoint("output/last.ckpt")</code> was <code>KeyError: 'args'</code>, now rebuilds at trained resolution/architecture with that epoch's non-EMA weights; <code>pretrain_weights="output/last.ckpt"</code> now keeps dataset class names (was COCO's). Pre-1.11.1 files can't be repaired in place — raises <code>ValueError</code> pointing at <code>checkpoint_best_ema.pth</code> + <code>training_config.json</code>; <code>resume=</code> unaffected. Config values a weights-only <code>torch.load</code> can't read (e.g. <code>pathlib.Path</code> in <code>notes</code>) stored as <code>repr()</code> + warning. (<a href="https://github.com/roboflow/rf-detr/issues/1552">#1552</a>)</li>
+<li>COCO training on PNG/BMP/non-JPEG (or JPEG without <code>simplejpeg</code>) back to 1.10 decode speed — <code>CocoDetection</code> was round-tripping every Pillow-decoded image through NumPy and back to PIL. Measured (Windows 11, Ryzen 7 7800X3D, 2 workers, batch 8, <code>RFDETRLarge</code> @1120): up to 27% slower/batch on 4096px BMP, 11% on PNG; JPEG (via <code>simplejpeg</code>) unaffected. <code>CocoDetection</code>/WebDataset shard reader now use Pillow's decoded image as-is. (<a href="https://github.com/roboflow/rf-detr/issues/1544">#1544</a>)</li>
+<li><code>format="coreai"</code> works with <code>coreai-torch</code> 0.4.3 (moved optimization into <code>TorchConverter.to_coreai()</code>, removed <code>AIProgram.optimize()</code>) — 1.11.0 fresh installs failed with <code>'AIProgram' object has no attribute 'optimize'</code>. <code>[coreai]</code> now pins <code>coreai-torch==0.4.3</code>, Python 3.11–3.14 (<code>coreai-core</code> 1.0.0b3 ships cp314 wheels), and declares a uv conflict with <code>[tflite]</code> (<code>onnx2tf</code> pins vs <code>coreai-core</code>'s <code>numpy&gt;=2.3</code>). (<a href="https://github.com/roboflow/rf-detr/pull/1527">#1527</a>)</li>
+<li><code>from_checkpoint("checkpoint_best_total.pth")</code> rebuilds as trained. <code>strip_checkpoint</code> dropped <code>model_config</code> → silent fallback to class defaults: Nano @224 came back @384 (boxes up to 193px off), keypoint @552 came back @576; <code>num_select</code> lost, <code>dec_layers</code> only warned. Same path as the Roboflow SDK upload. <code>device</code> no longer taken from checkpoint either — GPU-trained checkpoints load/predict on CPU-only host (<code>checkpoint_best_ema.pth</code>/<code>checkpoint_best_regular.pth</code> already did). Pre-1.11.1 best-total files can't be repaired in place; <code>from_checkpoint</code> warns, points at the unstripped checkpoint + <code>training_config.json</code>. (<a href="https://github.com/roboflow/rf-detr/issues/1533">#1533</a>)</li>
+<li>Keypoint fp16 training clips the real gradient. Manual-optimization path clipped before Lightning unscaled, so optimizer got <code>clip_max_norm / 65536</code> (1.5e-6 vs 0.1 default) — silently stalled. Now clips in <code>on_before_optimizer_step</code>, after unscale. Affects <code>16-mixed</code>: Apple Silicon (default AMP), CUDA <code>amp_dtype="fp16"</code>, T4/V100 via <code>amp_dtype="auto"</code> (<a href="https://github.com/roboflow/rf-detr/issues/1535">#1535</a>). Detection/segmentation unaffected. (<a href="https://github.com/roboflow/rf-detr/issues/1536">#1536</a>)<ul>
+<li>Multi-device XLA keypoint training now clips reduced gradients — no GradScaler-unscale dependency.</li>
+<li>Callbacks now see unclipped gradients in <code>on_before_optimizer_step</code>, matching Lightning's automatic-optimization hook order.</li>
+</ul>
+</li>
+<li><code>amp_dtype="auto"</code> (default) now trains fp16 on NVIDIA GPUs without native bf16 (T4, V100). <code>torch.cuda.is_bf16_supported()</code> counts emulated bf16, so torch ≥2.3 got <code>bf16-mixed</code> there: Colab T4 Nano step 443ms vs 226ms fp16 vs 386ms fp32. <code>"auto"</code> now picks bf16 only when every training GPU is Ampere+ (per docs). Older GPUs: fp16 + GradScaler, <code>batch_size="auto"</code> probes in fp16, <code>cuda_graphs=True</code> stays eager. Explicit <code>amp_dtype="bf16"</code> still honored, now warns it's emulated. (<a href="https://github.com/roboflow/rf-detr/issues/1535">#1535</a>)<ul>
+<li><strong>Loss curves/checkpoints before vs after are not comparable on pre-Ampere GPUs</strong> (different autocast dtype, GradScaler now active, fused AdamW off).</li>
+<li>The ~2x per-step timing (443ms vs 226ms) is one RF-DETR Nano step at default <code>compile=False</code>, <code>use_ema=True</code> — not an accuracy/throughput claim. Pre-Ampere GPUs also lose fused AdamW (<code>_fused_adamw_env_eligible</code>) and the Triton fused AdamW+EMA kernel (<code>_use_fused_adamw_ema</code>): both require BF16-variant precision, which fp16 (<code>16-mixed</code>) isn't — required for correctness, not a regression.</li>
+</ul>
+</li>
+<li>Val/test mAP ignores detections on COCO crowd regions (<code>iscrowd=1</code>), matching pycocotools — crowd annotations were dropped before the metric saw them, so a detection inside one counted as a false positive. (<a href="https://github.com/roboflow/rf-detr/issues/1531">#1531</a>)<ul>
+<li>Pretrained RF-DETR Nano COCO val2017: 0.4802 mAP → 0.4842, matching pycocotools on the same predictions.</li>
+<li>Training unchanged; only crowd-labelled COCO data gets different numbers — <strong>not directly comparable before/after.</strong></li>
+<li>Not covered: WebDataset shards, a hand-built <code>Trainer.validate(model, dataloaders=...)</code> with no datamodule. <code>val/F1</code> only ignores a detection with IoU ≥0.5 vs the crowd (box for detection, mask for segmentation).</li>
+</ul>
+</li>
+<li><code>TRTInference</code> (<code>rfdetr.export._tensorrt.inference</code>, behind <code>python -m rfdetr.export.benchmark</code>) now refuses an input TensorRT would misread, instead of returning wrong detections. A tensor on another device, wrong dtype, or non-contiguous (<code>channels_last</code>, a slice) now raises <code>ValueError</code> naming the fix — reads each input straight off its pointer. On a COCO val2017 image, <code>channels_last</code>/float16 input took pretrained RF-DETR Nano from 13 detections (&gt;0.5) to none; a CPU tensor caused <code>cudaError 700: an illegal memory access</code> (unusable CUDA context). <strong>Convert with <code>.to(...)</code>/<code>.contiguous()</code>.</strong> Batch-only mismatch now names working settings — <code>dynamic_batch=True, max_batch_size=N</code> covering both batches — instead of bare <code>dynamic_batch=True</code>; given only when batch alone exceeds a dynamic profile or is the sole static-engine mismatch (batch 0 / wrong image size no longer get this advice). (<a href="https://github.com/roboflow/rf-detr/pull/1546">#1546</a>)</li>
+<li><code>TRTInference.build_engine</code> no longer truncates an existing <code>.trt</code> on a failed build — it opened the file before checking the result, then failed with <code>TypeError: a bytes-like object is required, not 'NoneType'</code>; now raises <code>RuntimeError</code> first. A dynamic-batch ONNX (no optimization profile on this builder) is one way to hit it; <code>RFDETR.export(format="tensorrt", dynamic_batch=True, max_batch_size=N)</code> builds those. (<a href="https://github.com/roboflow/rf-detr/pull/1546">#1546</a>)</li>
+<li>An undeserializable engine (wrong TensorRT version/GPU arch, truncated file) now reports <code>RuntimeError</code> naming the file + rebuild instruction, instead of <code>AttributeError: 'NoneType' object has no attribute 'create_execution_context'</code>; a failed execution-context creation raises <code>RuntimeError</code> too, instead of <code>AttributeError</code> on <code>None</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1546">#1546</a>)</li>
+<li><code>TRTInference(device=...)</code> now loads <em>and runs</em> the engine on that device — before, only output buffers went there while TensorRT used <code>cuda:0</code> (unless switched), so <code>--device 1</code> mixed two GPUs in one context. <code>synchronize()</code>/the latency timer follow; non-CUDA <code>device</code> raises <code>ValueError</code>. Unit-tested only, no multi-GPU hardware. Feeding inputs on another device now gets the input-refusal <code>ValueError</code> above — move inputs with <code>.to("cuda:1")</code> too. (<a href="https://github.com/roboflow/rf-detr/pull/1546">#1546</a>)</li>
+<li><code>backbone_lora=True</code> checkpoints reload their trained backbone. <code>from_checkpoint()</code>/<code>RFDETR&lt;Size&gt;(pretrain_weights=...)</code>/<code>train()</code> loaded before wrapping the encoder with LoRA — checkpoint stores encoder under PEFT names, none matched, encoder stayed at random init: <code>evaluate()</code> ≈0, <code>predict()</code>/exports ran untrained, training restarted the encoder. Only sign was a partial-load warning (<code>223 model parameter(s) not in checkpoint … 331 checkpoint key(s) not consumed</code>). (<a href="https://github.com/roboflow/rf-detr/pull/1543">#1543</a>)<ul>
+<li>Encoder now wrapped before load; <code>backbone_lora=True</code> keeps trained adapters (pass explicitly, or restored from <code>model_config</code> — <code>checkpoint_best_total.pth</code> doesn't carry one yet, #1533). <code>backbone_lora=False</code> (default) merges adapters into encoder weights.</li>
+<li>Without <code>peft</code> installed, loading now raises <code>ImportError</code> (was silent random-encoder load). Patch-size check from #965 now covers these too.</li>
+<li>Measured: RF-DETR Large @640, LoRA fine-tuned on 262 COCO train2017 person images, evaluated on 300 val2017 person images — val mAP50:95 0.0001 → 0.6221 (same as in-memory model). (<a href="https://github.com/roboflow/rf-detr/issues/1540">#1540</a>)</li>
+</ul>
+</li>
+<li><code>RFDETR.export(format="tensorrt")</code> without <code>tensorrt</code> installed now fails before the ONNX export with <code>ImportError</code> (<code>pip install rfdetr[tensorrt]</code>) — <code>rfdetr[onnx]</code>'s Polygraphy imports <code>tensorrt</code> lazily, so the exporter previously wrote the full <code>.onnx</code> first, then failed with a Polygraphy error suggesting <code>POLYGRAPHY_AUTOINSTALL_DEPS=1</code>. That env var no longer installs <code>tensorrt</code> mid-export; install the extra instead. (<a href="https://github.com/roboflow/rf-detr/issues/1541">#1541</a>)</li>
+<li><code>TensorRTExporter.build_engine</code> on a <code>dynamic_batch=True</code> ONNX now raises <code>ValueError</code> unless <code>TensorRTConfig</code> sets <code>dynamic_batch=True</code> + <code>max_batch_size</code> — Polygraphy previously pinned the batch axis to 1 with just a warning. <code>RFDETR.export(format="tensorrt")</code> unaffected (applies one <code>dynamic_batch</code> setting to both ONNX graph and engine). (<a href="https://github.com/roboflow/rf-detr/issues/1541">#1541</a>)</li>
+<li><code>compile=True</code> with default <code>multi_scale</code> no longer recompiles the transformer per resolution. <code>torch.compile(dynamic=True)</code> specialized <code>spatial_shapes</code> (<code>torch.as_tensor</code> of Python-int <code>(H, W)</code>, added #1411) and the encoder-proposal grid (<code>torch.linspace</code>) to traced values, hitting Dynamo's recompile limit (8) — RF-DETR Nano/RTX 5070/torch 2.14: scales 9–11 ran eager, 54/200 steps. <code>spatial_shapes</code> now stacked from 0-d tensors (symbolic), grid uses <code>torch.arange</code> (same values) — stays compiled at every scale. Applies only under <code>torch.compile</code>; eager/TorchScript/ONNX/<code>torch.export</code> (torch 2.7+)/eager CUDA-graph capture unaffected. Backbone projector still recompiles per resolution on CUDA (Inductor conv-backward lowering, pytorch/pytorch#178945, pins strides). (<a href="https://github.com/roboflow/rf-detr/issues/1410">#1410</a>)</li>
+<li>COCO segmentation dataset mixing annotated and box-only instances now keeps every mask. <code>ConvertCoco</code> only checked the first annotation — a box-only first annotation dropped all masks for the image (e.g. 2 boxes, 0 masks); reversing order gave 2 masks. Masks now built for every annotation unconditionally, so <code>masks.shape[0] == boxes.shape[0]</code> always; box-only → empty mask (a real training target, not a placeholder). (<a href="https://github.com/roboflow/rf-detr/pull/1558">#1558</a>)</li>
+<li>Fixed JSON serialization in the COCO val-subset builder. (<a href="https://github.com/roboflow/rf-detr/commit/fd3bb991"><code>fd3bb991</code></a>, no PR — direct commit)</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Documented <code>TrainConfig.eval_backend</code> in the advanced training guide: comparison table (<code>vernier</code>/<code>hotcoco</code>/<code>ufcoco</code>/<code>faster_coco_eval</code>), walkthrough for registering a new backend, runnable <code>compute()</code> timing skeleton. (<a href="https://github.com/roboflow/rf-detr/pull/1526">#1526</a>)</li>
+<li>Scoped the static (full-integer) INT8 export limit to TFLite specifically — <code>_tflite</code> exporter docstring + <code>docs/exports/tflite.md</code> now name the mechanism (full-integer mode: per-tensor 8-bit scale, no float fallback) and note other toolchains (ONNX Runtime QDQ <code>quantize_static</code>, OpenVINO NNCF) can keep transformer-sensitive ops in float. Behavior unchanged. (<a href="https://github.com/roboflow/rf-detr/pull/1559">#1559</a>)</li>
 </ul>
 <h2 id="1110-2026-09-23">[1.11.0] — 2026-09-23<a class="headerlink" href="#1110-2026-09-23" title="Permanent link">&para;</a></h2>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>RFDETR.export(format="coreai")</code> writes an Apple Core AI <code>.aimodel</code> for iOS, iPadOS and macOS 27 through <code>torch.export</code> and <code>coreai-torch</code> (new <code>[coreai]</code> extra); <code>coreai_precision="float16"</code> gives a half-size asset. Decomposes <code>aten.grid_sampler_2d</code> (unsupported by <code>coreai-torch</code>) and runs float16 two-stage <code>topk</code> in float32, since the Neural Engine returns corrupt float16 <code>topk</code> indices. Detection, segmentation and keypoint models match eager PyTorch within 1e-4 on CPU (<code>e2e_coreai</code> suite, macOS 27 CI).</li>
 <li><code>RFDETR.export(format="tensorrt", dynamic_batch=True, max_batch_size=N)</code> now builds one engine that accepts any batch from 1 to <code>N</code>. The ONNX graph already carried a dynamic batch axis; the engine was refused only because no TensorRT optimization profile was passed, so it accepted the traced batch alone. The exporter now hands polygraphy a profile with <code>min=1</code>, <code>opt=batch_size</code>, <code>max=max_batch_size</code>; <code>TRTInference</code> allocates bindings at the max batch and trims outputs per call, and its async path moves off <code>execute_async_v2</code> (removed in TensorRT 11) to <code>execute_async_v3</code>. Verified within 1e-2 of eager PyTorch on an RTX 4090. At the profile's <code>opt</code> batch the dynamic engine costs ~2% latency versus a static one (up to ~5% on a T4); other batch sizes pay 1-48% more — the trade for one file instead of one engine per batch size. Documented in <code>docs/learn/export.md</code>. (<a href="https://github.com/roboflow/rf-detr/issues/376">#376</a>)</li>
@@ -2890,7 +3027,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>ModelConfig.amp</code> is deprecated, <strong>removal in v1.14</strong>, superseded by <code>TrainConfig.amp_dtype</code>, which now accepts <code>None</code> to disable autocast. The two settings previously split one decision across both configs: the boolean gated AMP on the model config while the dtype was chosen on the train config, and <code>amp=False</code> silently voided any <code>amp_dtype</code>. <code>amp_dtype</code> is now the single authority — an explicitly set value always wins, including <code>"fp8"</code>, which reaches the Transformer Engine hardware checks instead of being turned off. The legacy toggle still applies while <code>amp_dtype</code> is left at its default <code>"auto"</code>, emitting a <code>FutureWarning</code>; "left at its default" is evaluated by value rather than by which fields were passed, so a config reloaded from <code>training_config.json</code> keeps honoring it. Replace <code>amp=False</code> with <code>amp_dtype=None</code>. One behavior change is not covered by that fallback: <code>amp=False</code> combined with an explicit <code>amp_dtype="fp8"</code> previously raised <code>amp_dtype='fp8' requires model_config.amp=True</code> and now runs FP8.</li>
 <li><code>TrainConfig.fp16_eval</code> is deprecated, <strong>removal in v1.14</strong>. It has had no runtime consumer since the PyTorch Lightning migration — evaluation precision follows <code>amp_dtype</code> — so it is warned about rather than migrated. Setting it to <code>True</code> emits a <code>FutureWarning</code>; the default stays silent, including on a dumped-config reload. Use <code>amp_dtype="fp16"</code> to evaluate in FP16.</li>
 </ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>TrainConfig.eval_backend="vernier"</code> now converts evaluation state through vernier's own columnar <code>coco_inputs_from_columns</code> (vernier 0.5.2+) instead of ~210 lines of hand-rolled conversion — fixing a bucketing mismatch where, under a combined <code>bbox</code>+<code>segm</code> run, box AP was bucketed by box area while <code>hotcoco</code>/<code>faster_coco_eval</code> bucket by mask area, so results disagreed for objects straddling the <code>32**2</code>/<code>96**2</code> size thresholds. Ground-truth <code>area</code> now always derives from the mask when <code>segm</code> is requested, matching the other backends. Also ~2-10% faster <code>compute()</code>, since conversion is now columnar. (<a href="https://github.com/roboflow/rf-detr/pull/1512">#1512</a>)</li>
 <li>CoreML exports of keypoint models no longer invert the keypoint self-attention mask, which caused garbled or missing keypoint detections. <code>nn.MultiheadAttention</code> turns a boolean <code>attn_mask</code> into a float one via <code>zeros_like(mask, dtype=...)</code>, and coremltools (9.0, 9.1) drops that <code>dtype</code> keyword during <code>torch.export</code> conversion, so the mask applied with the opposite meaning — with multiple keypoint classes, cross-class logits diverged from eager by up to 1.19; with one class every logit got a -3e4 bias, and float16 found 0/11 detections on <code>CPU_ONLY</code> (now finds all 11). The decoder now passes the additive float mask directly; eager outputs unchanged. Fixed upstream in apple/coremltools#2865.</li>
@@ -2921,7 +3058,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Compiled training with <code>torch.compile(..., dynamic=True)</code> no longer silently falls back whole forward frames to eager — <code>triton.coalesce_tiling_analysis</code> is unsupported on the dynamic-shape path but still ran, hitting a size-hint assert with no symbolic-shape escape. Now disabled before the compile call. (<a href="https://github.com/roboflow/rf-detr/pull/1455">#1455</a>)</li>
 <li>The export-mode switch is now idempotent — calling it a second time in the same state no longer raises, and the ONNX export path routes through the same guarded helper as the other formats. (<a href="https://github.com/roboflow/rf-detr/pull/1445">#1445</a>)</li>
 </ul>
-<h3 id="breaking-changes_1">Breaking Changes<a class="headerlink" href="#breaking-changes_1" title="Permanent link">&para;</a></h3>
+<h3 id="breaking-changes_2">Breaking Changes<a class="headerlink" href="#breaking-changes_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Removed <code>RFDETR.optimize_for_inference()</code>, deprecated since v1.9.0. Call <code>RFDETR.inference()</code>; the signature is unchanged.</li>
 <li>Removed <code>TrainConfig.lr_drop</code> and <code>TrainConfig.lr_min_factor</code>, deprecated since v1.9.0, together with the validator that folded them into <code>lr_scheduler_kwargs</code>. Pass <code>lr_scheduler_kwargs={"lr_drop": ..., "min_factor": ...}</code>; the managed <code>"step"</code> / <code>"cosine"</code> presets fall back to <code>lr_drop=100</code> and <code>min_factor=0.0</code> when a key is absent. <code>TrainConfig</code> rejects unknown fields, so a <code>training_config.json</code> written by v1.9 or v1.10 must have the two keys removed before it is passed back to <code>TrainConfig(**...)</code>; the migrated values are already present in its <code>lr_scheduler_kwargs</code>.</li>
@@ -2932,7 +3069,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="1101-2026-09-07">[1.10.1] — 2026-09-07<a class="headerlink" href="#1101-2026-09-07" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Reduced peak CUDA memory in segmentation loss: matched boolean ground-truth masks are now sampled one image at a time on CUDA instead of concatenating a batch-wide float mask tensor. (<a href="https://github.com/roboflow/rf-detr/pull/1437">#1437</a>)</li>
 <li><code>point_sample(mode="nearest")</code> no longer falls back to a host op on MPS/XLA — routed through a backend-agnostic gather path instead of <code>F.grid_sample</code>. CUDA/CPU are unaffected. Measured on a Cloud TPU v6e-1 with <code>RFDETRSegNano</code>: <code>aten::grid_sampler_2d</code> host fallbacks went from 50 to 0 per 5-step fit. (<a href="https://github.com/roboflow/rf-detr/pull/1432">#1432</a>, issue <a href="https://github.com/roboflow/rf-detr/issues/1058">#1058</a>)</li>
@@ -2942,7 +3079,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>compile=True</code> now takes effect on CUDA with the default <code>multi_scale=True</code>, instead of logging a notice and training eagerly. (<a href="https://github.com/roboflow/rf-detr/pull/1436">#1436</a>; <a href="https://github.com/roboflow/rf-detr/pull/1411">#1411</a> made compilation reachable in the first place)</li>
 </ul>
 <h2 id="1100-2026-09-04">[1.10.0] — 2026-09-04<a class="headerlink" href="#1100-2026-09-04" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>TrainConfig.pack_targets</code> (default <code>True</code>) concatenates each batch's per-sample target dicts into one tensor per field before the DataLoader worker-to-main boundary, rebuilding them losslessly on the other side: a batch of 16 crosses as 9 objects, not 114, with bit-identical values. Loaders yield <code>PackedTargets</code> when packing is lossless, else the original tuple of dicts. (<a href="https://github.com/roboflow/rf-detr/pull/1399">#1399</a>)</li>
 <li><code>TrainConfig.eval_batch_size</code> decouples the validation/test/predict dataloaders from the training <code>batch_size</code>. Default <code>None</code> inherits <code>batch_size</code>; unlike <code>batch_size</code> it accepts no <code>"auto"</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1378">#1378</a>)</li>
@@ -3004,7 +3141,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>rfdetr.datasets.aug_config</code> compatibility shim now has a concrete removal target: deprecated since 1.9.0, <strong>removal in v1.12.0</strong>. Use <code>rfdetr.datasets.aug_configs</code> (plural) instead; constants unchanged. (<a href="https://github.com/roboflow/rf-detr/pull/1103">#1103</a>, <a href="https://github.com/roboflow/rf-detr/pull/1037">#1037</a>)</li>
 <li><code>TrainConfig.eval_ema_only</code> is deprecated, <strong>removal in v1.13</strong>, superseded by <code>eval_base_model</code>. Legacy <code>True</code>/<code>False</code> still migrate to the equivalent <code>eval_base_model</code> value with a <code>FutureWarning</code>; it still requires <code>use_ema=True</code> and conflicts with <code>eval_base_model=True</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1380">#1380</a>)</li>
 </ul>
-<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Packed targets materialize directly into per-sample device tensors instead of clone-after-move, removing a transient CUDA allocation equal to the mask field's size. (<a href="https://github.com/roboflow/rf-detr/pull/1405">#1405</a>)</li>
 <li>Empty COCO targets keep <code>iscrowd</code>/<code>area</code> dtypes matching populated targets, enabling lossless packed-target transport for mixed empty/populated batches. (<a href="https://github.com/roboflow/rf-detr/pull/1404">#1404</a>)</li>
@@ -3012,7 +3149,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Kornia <code>CLAHE</code> reads a scalar <code>clip_limit</code> as a range, matching Albumentations, and rejects the same sequences Albumentations rejects. (<a href="https://github.com/roboflow/rf-detr/pull/1350">#1350</a>)</li>
 <li>Corrupt COCO zip downloads are retried, size validated against <code>Content-Length</code>, up to 3 attempts with linear backoff, instead of failing the dataset build outright. (<a href="https://github.com/roboflow/rf-detr/pull/1306">#1306</a>)</li>
 </ul>
-<h3 id="breaking-changes_2">Breaking Changes<a class="headerlink" href="#breaking-changes_2" title="Permanent link">&para;</a></h3>
+<h3 id="breaking-changes_3">Breaking Changes<a class="headerlink" href="#breaking-changes_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>TrainConfig.grad_accum_steps</code> now defaults to <code>1</code> (was <code>4</code>)</strong>, changing the default effective batch size from 16 to 4 — a training-semantics change, not just throughput. <strong>Set <code>grad_accum_steps=4</code> explicitly to restore prior behavior.</strong> <code>batch_size="auto"</code> runs are unaffected, since the auto-batch probe overwrites <code>grad_accum_steps</code>. Measured 27% faster/epoch on one L4 (<code>batch_size=16, grad_accum_steps=1</code> vs. the old <code>4</code>/<code>4</code>), mAP equal within noise. (<a href="https://github.com/roboflow/rf-detr/pull/1378">#1378</a>)</li>
 <li><strong>Validation now evaluates one model per epoch</strong>, EMA when <code>use_ema=True</code> (the default) and base otherwise, instead of both, removing a full validation pass worth ~5% epoch time in one measured L4 run. <strong>Metric keys move</strong>: <code>val/mAP_*</code>, <code>val/mAR</code>, per-class <code>val/AP/&lt;class&gt;</code>, and <code>val/loss</code> report whichever model was evaluated, the EMA model by default, instead of always the base model — changing what a <code>ReduceLROnPlateau</code> scheduler, <code>ModelCheckpoint(monitor=...)</code>, or early stopping watching those keys tracks. <code>val/ema_*</code> remains available for explicit EMA consumers. <code>checkpoint_best_regular.pth</code> is no longer written when the base model is not evaluated. Set <code>TrainConfig.eval_base_model=True</code> to restore the previous base+EMA comparison; <code>use_ema=False</code> runs are unaffected. (<a href="https://github.com/roboflow/rf-detr/pull/1380">#1380</a>)</li>
@@ -3022,7 +3159,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="194-2026-08-24">[1.9.4] — 2026-08-24<a class="headerlink" href="#194-2026-08-24" title="Permanent link">&para;</a></h2>
-<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>ONNX and TFLite reference inference helpers accept an explicit <code>background_class_id</code>: <code>-1</code> preserves the existing final-background default, <code>None</code> retains every exported logit slot for sparse-ID COCO checkpoints, and <code>0</code> supports legacy background-first keypoint checkpoints. (<a href="https://github.com/roboflow/rf-detr/pull/1397">#1397</a>)</li>
 <li>Fixed the TFLite reference inference helper assuming a lone rank-4 output is a segmentation mask. ONNX output names rarely survive the conversion — RF-DETR's own TFLite files arrive as <code>StatefulPartitionedCall:N</code> — so a keypoint export's <code>pred_keypoints</code> tensor was indistinguishable from a mask by name and was silently upsampled into <code>Detections.mask</code>. <code>rank4_output</code> now defaults to <code>None</code>, decoding only named masks; pass <code>"masks"</code> explicitly for a name-stripped segmentation export. (<a href="https://github.com/roboflow/rf-detr/pull/1397">#1397</a>)</li>
@@ -3041,7 +3178,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>Transformer.forward</code>'s two-stage query selection gathers the <code>torch.topk</code>-selected rows <em>before</em> running the bbox-delta MLP (<code>enc_out_bbox_embed</code>), not after: the MLP is pointwise with no cross-token mixing, so it needs at most the <code>num_queries</code> rows that survive selection, not every one of the <code>sum(H*W)</code> encoder positions. (<a href="https://github.com/roboflow/rf-detr/pull/1334">#1334</a>)</li>
 <li><code>PostProcess</code> box/mask/keypoint selection is now deterministically tie-broken (<code>torch.argsort(..., stable=True)</code> + slice, replacing <code>torch.topk</code>) — ties resolve by descending score then ascending flattened query/class index, shared with the torch-free export decoders. Output ordering among tied scores may differ from 1.9.2 (same detections, different order); it was never contractual. <code>PostProcess(num_select=&lt;negative&gt;)</code> now raises <code>ValueError</code> at construction. (<a href="https://github.com/roboflow/rf-detr/pull/1320">#1320</a>)</li>
 </ul>
-<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>evaluate(split="test")</code> on YOLO-format datasets silently evaluating <code>valid/</code> instead of the real <code>test/</code> split. When no resolvable <code>test</code> split exists, evaluation now falls back to <code>valid/</code> with a logged warning instead of silently mislabeling it; a new <code>YoloSplitUnavailableError</code> (a <code>FileNotFoundError</code> subclass) drives that fallback. A declared-but-unresolvable <code>test</code> path, an empty images directory, or a missing labels directory still raises. COCO-format datasets have no such fallback and still raise <code>FileNotFoundError</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1329">#1329</a>, <a href="https://github.com/roboflow/rf-detr/pull/1343">#1343</a>)</li>
 <li>Fixed <code>metrics.csv</code> training history being wiped by a resumed run — PyTorch Lightning's <code>_ExperimentWriter</code> deletes any pre-existing <code>metrics.csv</code> the first time <code>.experiment</code> is accessed, removing every pre-resume row. The file is now snapshotted before that access and restored after, gated on <code>resume</code> being set — a fresh non-resumed run into a reused <code>output_dir</code> still resets the file. (<a href="https://github.com/roboflow/rf-detr/pull/1325">#1325</a>, closes <a href="https://github.com/roboflow/rf-detr/issues/1321">#1321</a>)</li>
@@ -3054,7 +3191,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Fixed EMA training performing an extra averaged-model update at epoch boundaries after the final optimizer step, which let one update per epoch bypass <code>ema_update_interval</code> and change the EMA trajectory. (<a href="https://github.com/roboflow/rf-detr/pull/1319">#1319</a>)</li>
 <li>Fixed <code>model.export(format="tflite")</code> hanging forever at the ONNX → TFLite conversion step, with no traceback, no error, 0% CPU. <code>onnx</code> and TensorFlow both statically link Abseil and export its symbols weakly, so whichever loads first supplies them to both; the TFLite route runs a full ONNX export first, so TensorFlow's executor blocked forever in <code>absl::Notification::WaitForNotification()</code> restoring the SavedModel bundle. TensorFlow is now imported before the ONNX export; a warning logs when the calling process already imported <code>onnx</code> first (that order can't be repaired in-process). (<a href="https://github.com/roboflow/rf-detr/issues/1322">#1322</a>, <a href="https://github.com/roboflow/rf-detr/pull/1323">#1323</a>)</li>
 </ul>
-<h3 id="breaking-changes_3">Breaking Changes<a class="headerlink" href="#breaking-changes_3" title="Permanent link">&para;</a></h3>
+<h3 id="breaking-changes_4">Breaking Changes<a class="headerlink" href="#breaking-changes_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Exported artifact filenames encode precision or backend for variant-derived/default names: TFLite <code>{stem}_float32.tflite</code> / <code>{stem}_float16.tflite</code> → <code>{stem}_fp32.tflite</code> / <code>{stem}_fp16.tflite</code>; ExecuTorch <code>{variant}.pte</code> → <code>{variant}_{backend}.pte</code> (or <code>{variant}_qnn_{soc}.pte</code>); CoreML <code>{variant}.mlpackage</code> → <code>{variant}_fp32.mlpackage</code> / <code>{variant}_fp16.mlpackage</code>; TensorRT <code>{stem}.trt</code> → <code>{stem}_fp16.trt</code> / <code>{stem}_fp32.trt</code>. ONNX filenames are unchanged. Update scripts that hardcode or glob these artifact filenames; explicit <code>output_name</code> overrides are unchanged.</li>
 </ul>
@@ -3068,7 +3205,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Evaluation matching counts labels on the host, not the device. (<a href="https://github.com/roboflow/rf-detr/pull/1276">#1276</a>)</li>
 <li>Keypoint decode skips redundant CUDA presence checks in postprocessing. (<a href="https://github.com/roboflow/rf-detr/pull/1282">#1282</a>)</li>
 </ul>
-<h3 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed loading a detection checkpoint published before keypoint support warning that <code>_kp_active_mask</code> is a "model parameter not in checkpoint (left at random init)" — it's a deterministic schema buffer the model always rebuilds, empty for detection-only variants, not a learned parameter, so its absence never affected loaded weights. Affects <code>Nano</code>, <code>Small</code>, <code>Large</code> (2026) and <code>SegSmall</code>. An <em>unexpected</em> <code>_kp_active_mask</code> in a checkpoint still warns. (<a href="https://github.com/roboflow/rf-detr/pull/1302">#1302</a>)</li>
 <li>Fixed resuming training from one of <code>BestModelCallback</code>'s four lightweight checkpoints (<code>checkpoint_best_regular.pth</code>, <code>checkpoint_best_ema.pth</code>, <code>checkpoint_best_total.pth</code>, <code>last_ema.pth</code>) silently restarting per-callback state cold — it now restores (those files intentionally omit optimizer/LR-scheduler state, with a warning saying so). Best-score restore additionally requires the original <code>output_dir</code> to match. (<a href="https://github.com/roboflow/rf-detr/pull/1318">#1318</a>)</li>
@@ -3079,7 +3216,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Fixed <code>ModelContext.reinitialize_detection_head()</code> raising <code>AttributeError: 'NoneType'</code> after <code>RFDETR.inference(inplace=True)</code> cleared the weights — it now raises a clear <code>RuntimeError</code>, before <code>args.num_classes</code> is mutated so a rejected call can't leave the context half-updated. (<a href="https://github.com/roboflow/rf-detr/pull/1283">#1283</a>)</li>
 <li>Fixed <code>evaluate()</code> not building its datamodule from the resolution-override config. (<a href="https://github.com/roboflow/rf-detr/pull/1280">#1280</a>)</li>
 </ul>
-<h3 id="breaking-changes_4">Breaking Changes<a class="headerlink" href="#breaking-changes_4" title="Permanent link">&para;</a></h3>
+<h3 id="breaking-changes_5">Breaking Changes<a class="headerlink" href="#breaking-changes_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>COCO datasets containing an unannotated grouping category no longer spend a model output slot on it. Roboflow COCO exports prepend a synthetic root category (id <code>0</code>, <code>supercategory: "none"</code>, named after the project) that every real class then lists as its own <code>supercategory</code>; it carries no annotations, but previously took label index <code>0</code> and an extra class channel. <code>CocoDetection.cat2label</code>, the auto-detected <code>num_classes</code> and <code>RFDETR._load_classes()</code> now share one filter (<code>rfdetr.datasets.coco.filter_parent_categories</code>), so training such a dataset builds an <em>N</em>-class head instead of <em>N+1</em> and every real class shifts down one label index. A parent category that owns annotations keeps its slot, and flat datasets are unaffected. Checkpoints trained before this change keep their <em>N+1</em>-class head — evaluating one against the same dataset now misaligns per-class metrics, firing the existing class-count <code>UserWarning</code>; retrain. Passing <code>num_classes</code> explicitly preserves the checkpoint's <em>N+1</em>-class head width so the weights still load, but does not restore the old label indices: <code>CocoDetection</code> drops the grouping category whenever <code>remap_category_ids=True</code>, so every real class still shifts down one slot and the pretrained head is misaligned against the new labels. The keypoint remapping path (<code>_build_keypoint_cat2label</code>) is unchanged, so keypoint datasets still include the grouping category. For hierarchical datasets, the <code>train</code>/<code>valid</code>/<code>test</code> splits now share one label mapping, always derived from the <code>train</code> split, so a grouping category annotated in only some splits no longer shifts that split's label indices out from under the others. (<a href="https://github.com/roboflow/rf-detr/pull/1303">#1303</a>)</li>
 </ul>
@@ -3090,7 +3227,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>RFDETR.predict()</code> no longer upsamples segmentation masks whose scores fall below the caller's threshold before discarding them; on typical COCO images only a few of the <code>num_select</code> masks survive <code>threshold=0.5</code>. End-to-end <code>predict()</code> is ~20% faster at 1080p, the saving scaling with image area and neutral at 640 px; the output is unchanged. (<a href="https://github.com/roboflow/rf-detr/pull/1265">#1265</a>)</li>
 <li>ExecuTorch export lowers the <code>addmm</code> operations the XNNPACK partitioner leaves undelegated back into <code>aten.linear</code> via <code>AddmmToLinearTransform</code>, which runs ~100× faster for those shapes. RFDETRNano on XNNPACK / Apple silicon is ~2.5× faster (119.9 → 48.3 ms median); outputs match the previous lowering to ~1e-4. (<a href="https://github.com/roboflow/rf-detr/pull/1262">#1262</a>)</li>
 </ul>
-<h3 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>keypoint_flip_pairs</code> silently disabling horizontal-flip augmentations (<code>HorizontalFlip</code>, <code>Flip</code>, <code>D4</code>) on detection-only datasets when a custom <code>aug_config</code> is supplied. <code>AlbumentationsWrapper.from_config</code> treats an empty <code>keypoint_flip_pairs</code> as "keypoint pipeline with no flip pairs defined" and drops flip transforms for annotation safety; detection pipelines must pass <code>None</code> instead of <code>[]</code> to keep flips enabled. (<a href="https://github.com/roboflow/rf-detr/pull/1248">#1248</a>)</li>
 <li>Fixed export inference and INT8 calibration resizing through PIL's antialiased BILINEAR/BICUBIC filters, which diverge from <code>predict()</code> on downscale and shift exported-model confidence scores and INT8 calibration ranges. The ONNX inference, TFLite inference, INT8 TFLite calibration, and benchmark/traced-example paths now resize with <code>RFDETR.predict()</code>'s exact convention: bilinear, half-pixel centers, <code>antialias=False</code>. A shared torch-free <code>_bilinear_resize_half_pixel</code> NumPy kernel (<code>rfdetr/export/_resize.py</code>) mirrors the convention wherever torchvision is unavailable. Re-export any INT8 TFLite model to recalibrate against the corrected pixel distribution. (<a href="https://github.com/roboflow/rf-detr/pull/1269">#1269</a>)</li>
@@ -3098,7 +3235,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Fixed the Kornia augmentation builders (<code>GaussianBlur</code>, <code>GaussNoise</code>) rejecting scalars for range parameters; they now accept either a scalar or a <code>(min, max)</code> pair, matching the Albumentations path. A custom <code>aug_config</code> valid under Albumentations no longer raises a bare <code>TypeError</code> when <code>augmentation_backend="cpu"</code>/<code>"auto"</code> resolves to Kornia, i.e. Kornia installed and CUDA available. (<a href="https://github.com/roboflow/rf-detr/pull/1255">#1255</a>)</li>
 <li>Fixed <code>uv sync</code> failing to create <code>.venv</code>; an <code>executorch</code>/<code>tflite</code> extra conflict previously blocked resolution of the development environment. (<a href="https://github.com/roboflow/rf-detr/pull/1253">#1253</a>)</li>
 </ul>
-<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<h3 id="documentation_1">Documentation<a class="headerlink" href="#documentation_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Corrected RF-DETR Keypoint Preview's parameter count (126.4 M → 40.7 M), added deployment parameter-count columns to the keypoint benchmark tables, and clarified that the new SAM 3 RF100-VL result is author-reported rather than measured in SAB. (<a href="https://github.com/roboflow/rf-detr/pull/1258">#1258</a>, <a href="https://github.com/roboflow/rf-detr/pull/1261">#1261</a>)</li>
 <li>Documented ONNX Runtime raw-output decoding and expanded the LLM keypoint task/model/benchmark/API reference. (<a href="https://github.com/roboflow/rf-detr/pull/1251">#1251</a>, <a href="https://github.com/roboflow/rf-detr/pull/1260">#1260</a>)</li>
@@ -3107,7 +3244,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li>Default dataset augmentations use torchvision-native transforms <strong>unless Albumentations is installed</strong>, in which case <code>augmentation_backend="auto"</code>/<code>"cpu"</code>, the default, auto-selects Albumentations instead — identical user code can therefore resolve to a different resize backend, and slightly different pixel values / mAP, purely based on whether <code>rfdetr[augment]</code> is installed. Pass <code>augmentation_backend="torchvision"</code> to pin torchvision regardless of what is installed. Non-empty custom <code>aug_config</code> dictionaries use the optional Albumentations integration and Kornia GPU backend, both via <code>pip install 'rfdetr[augment]'</code>. The <code>[train]</code> extra no longer installs Albumentations or Kornia. See the migration guide's "Upgrade 1.8 → 1.9" section for remediation steps. (<a href="https://github.com/roboflow/rf-detr/pull/1112">#1112</a>)</li>
 </ul>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Native CoreML export: <code>format="coreml"</code> on <code>RFDETR.export()</code> produces a <code>.mlpackage</code> (mlprogram, iOS 16+) directly from <code>torch.export</code>, with no ONNX intermediary — distinct from ExecuTorch's <code>format="executorch", backend="coreml"</code> <code>.pte</code> path. Install with <code>pip install 'rfdetr[coreml]'</code> (macOS only; <code>coremltools&gt;=8.0,&lt;10.0</code>). (<a href="https://github.com/roboflow/rf-detr/pull/1235">#1235</a>)</li>
 <li>Multi-GPU / multi-node <strong>keypoint (pose) training</strong> under <code>DistributedDataParallel</code>. Keypoint models (<code>RFDETRKeypointPreview</code>) previously raised <code>NotImplementedError</code> for any distributed strategy, <code>num_nodes &gt; 1</code>, or <code>devices &gt; 1</code>; they now train with <code>strategy="ddp"</code> / <code>strategy="auto"</code> on multiple GPUs and nodes, launched with <code>torchrun</code> exactly like detection models. Because keypoint models use manual optimization, gradients synchronize on every microbatch — keep <code>grad_accum_steps=1</code> on multi-GPU for best throughput (<code>grad_accum_steps &gt; 1</code> is correct but performs redundant all-reduces). Sharded strategies (FSDP / DeepSpeed) remain unsupported for keypoint models and raise a clear error. See the "Keypoint / Pose models" note in <code>docs/learn/train/advanced.md</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1232">#1232</a>)</li>
@@ -3120,7 +3257,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li><code>TrainConfig.lr_drop</code> and <code>lr_min_factor</code> — pass them through <code>lr_scheduler_kwargs</code> instead (<code>{"lr_drop": ...}</code> / <code>{"min_factor": ...}</code>). Deprecated since v1.9.0, removal in v1.11.0. The fields still work meanwhile and are folded into <code>lr_scheduler_kwargs</code> for the managed presets with a <code>FutureWarning</code>; default values, e.g. on config reload, do not warn. Set with an explicit, non-managed scheduler they are inert and emit a <code>FutureWarning</code>.</li>
 </ul>
-<h3 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed the keypoint L1-loss helper (<code>compute_l1_keypoint_loss</code>) returning detached <code>new_zeros</code> on its out-of-schema class-index guard; it now returns <strong>graph-connected</strong> zeros. A detached zero left the keypoint-head parameters without a gradient path on that batch, which desyncs <code>DistributedDataParallel</code>'s gradient reducer across ranks (hang or "parameter did not receive grad") when the guard fires on some ranks but not others. This is a prerequisite for the multi-GPU keypoint training above.</li>
 <li>Fixed non-square Albumentations training resize (<code>aug_config</code> set, <code>augmentation_backend</code> resolving to <code>"albumentations"</code>) silently inflating every image's longest side to <code>max_size</code>, 1333 by default. <code>SmallestMaxSize</code> → <code>LongestMaxSize</code> always forces an exact resize in Albumentations, not a conditional cap; a new <code>CappedLongestMaxSize</code> internal transform only shrinks, never upscales, matching torchvision's <code>RandomResize</code> semantics.</li>
@@ -3155,7 +3292,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="183-2026-06-27">[1.8.3] — 2026-06-27<a class="headerlink" href="#183-2026-06-27" title="Permanent link">&para;</a></h2>
-<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>optimize_for_inference(inplace=True)</code> — new keyword-only argument on <code>RFDETR.optimize_for_inference()</code>; skips the deep-copy of the base model for memory-constrained inference-only deployments, ~0.5× model-weight peak memory reduction. Requires <code>compile=False</code>. After inplace optimization, <code>export()</code> raises <code>RuntimeError</code> and <code>remove_optimized_model()</code> issues a <code>UserWarning</code> and returns cleanly instead of silently clearing state. New <code>RFDETR.is_optimized_inplace</code> property returns <code>True</code> after a successful inplace optimization. (<a href="https://github.com/roboflow/rf-detr/pull/1089">#1089</a>)</li>
 <li><code>CocoKeypointSchema.keypoint_flip_pairs</code> and <code>YoloKeypointSchema.keypoint_flip_pairs</code> fields — horizontal-flip swap pairs inferred automatically from keypoint names (left/right naming convention) for COCO schemas, and from <code>flip_idx</code> permutation for YOLO schemas. Auto-populated by <code>infer_coco_keypoint_schema</code> and <code>infer_yolo_keypoint_schema</code> respectively. (<a href="https://github.com/roboflow/rf-detr/pull/1164">#1164</a>)</li>
@@ -3167,7 +3304,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Keypoint schema inference supports native COCO format (<code>dataset_file="coco"</code>) in addition to <code>"roboflow"</code> and <code>"yolo"</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1164">#1164</a>)</li>
 <li><code>_keypoint_schema_cache</code> key changed from <code>dataset_dir</code> (string) to <code>(dataset_file, dataset_dir)</code> tuple, preventing cross-format cache collisions when the same directory is used with different dataset formats. (<a href="https://github.com/roboflow/rf-detr/pull/1164">#1164</a>)</li>
 </ul>
-<h3 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed unbounded box regression producing negative or out-of-frame coordinates: predicted bounding boxes are clamped to image bounds <code>[0, width] × [0, height]</code> in <code>PostProcess._postprocess_boxes()</code>. <code>scale_fct</code> is also cast to <code>boxes.dtype</code> before multiplication, preventing dtype mismatch when boxes are <code>float16</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1168">#1168</a>)</li>
 <li>Fixed <code>SegmentationTrainConfig.cls_loss_coef</code> default of <code>5.0</code>, corrected to <code>1.0</code> to restore the pre-v1.7 effective classification loss weight. The <code>5.0</code> value was present since v1.6 but dead code until the v1.7 TrainConfig ownership migration activated it, silently over-penalising classification relative to mask losses during segmentation fine-tuning. To reproduce pre-fix behaviour, pass <code>cls_loss_coef=5.0</code> explicitly. (<a href="https://github.com/roboflow/rf-detr/pull/1165">#1165</a>)</li>
@@ -3175,7 +3312,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="182-2026-06-25">[1.8.2] — 2026-06-25<a class="headerlink" href="#182-2026-06-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
+<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>YOLO pose keypoint dataset support: load Ultralytics YOLO pose datasets (<code>.yaml</code> with <code>kpt_shape</code>) directly for keypoint fine-tuning. Schema is inferred automatically via <code>infer_yolo_keypoint_schema</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1156">#1156</a>)</li>
 <li><code>is_bg_first_schema</code>, <code>to_active_first</code>, <code>to_bg_first</code>, <code>schemas_semantically_equal</code> utilities in <code>rfdetr.utilities.keypoints</code>, re-exported from <code>rfdetr.utilities</code>, for schema-aware keypoint processing. (<a href="https://github.com/roboflow/rf-detr/pull/1160">#1160</a>)</li>
@@ -3187,7 +3324,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li>Default <code>num_keypoints_per_class</code> in <code>RFDETRKeypointPreviewConfig</code> changed from <code>[0, 17]</code> (background-first) to <code>[17]</code> (active-first). Legacy bg-first checkpoints auto-align on load via <code>_kp_active_mask</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1160">#1160</a>)</li>
 </ul>
-<h3 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>RFDETR.from_checkpoint()</code> misreading <code>num_classes</code> as <code>shape[0]</code>, i.e. <code>num_classes + 1</code> including the background class, causing <code>load_state_dict</code> shape mismatches or a silent extra output class on every load. It now infers <code>num_classes</code> and <code>num_keypoints_per_class</code> from checkpoint weights, <code>class_embed.weight.shape[0] - 1</code> and <code>_kp_active_mask</code> respectively. <code>BestModelCallback._serialize_model_config</code> is also fixed to persist the correct foreground-only <code>num_classes</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1158">#1158</a>)</li>
 <li>Fixed <code>HungarianMatcher.forward()</code> hardcoding <code>0.25</code> in the focal classification matching cost, silently ignoring any non-default <code>focal_alpha</code> passed to the constructor or <code>build_matcher</code>; it now uses the configured value. This had misaligned the bipartite matching cost with the focal classification loss in <code>criterion.py</code>, which correctly used <code>self.focal_alpha</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1147">#1147</a>)</li>
@@ -3205,7 +3342,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Keypoint training disables horizontal flip augmentation until keypoint flip-pair swapping is implemented. Flipping was previously applied without reordering keypoint pairs, producing incorrect labels. (<a href="https://github.com/roboflow/rf-detr/pull/1122">#1122</a>)</li>
 <li>Training metric plots improved with optional seaborn error bands, AP@0.75 metric grouping, and custom AP metric group configuration. (<a href="https://github.com/roboflow/rf-detr/pull/1122">#1122</a>)</li>
 </ul>
-<h3 id="fixed_11">Fixed<a class="headerlink" href="#fixed_11" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed the keypoint encoder in eval mode splitting <code>num_queries</code> queries across all group heads, because <code>group_detr = len(self.enc_out_keypoint_embed)</code>; an <code>if self.training else 1</code> guard now routes all queries through head 0. (<a href="https://github.com/roboflow/rf-detr/pull/1135">#1135</a>)</li>
 <li>Fixed <code>config.use_return_dict</code>, deprecated in <code>transformers</code>, replaced with <code>config.return_dict</code> in the DINOv2 windowed attention backbone. (<a href="https://github.com/roboflow/rf-detr/pull/1135">#1135</a>)</li>
@@ -3217,7 +3354,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="180-2026-06-13">[1.8.0] — 2026-06-13<a class="headerlink" href="#180-2026-06-13" title="Permanent link">&para;</a></h2>
-<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
+<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>RFDETRKeypointPreview</code> — keypoint detection model variant with GroupPose-style head, covariance-based uncertainty (precision-Cholesky parameterization), and COCO keypoint AP evaluation. Public config classes: <code>KeypointTrainConfig</code>, <code>RFDETRKeypointPreviewConfig</code> (from <code>rfdetr.config</code>). Utility: <code>precision_cholesky_to_pixel_covariance</code> (from <code>rfdetr.utilities</code>). Schema helpers <code>infer_coco_keypoint_schema</code>, <code>CocoKeypointSchema</code>, <code>active_keypoint_counts</code> accessible via <code>rfdetr.datasets._keypoint_schema</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1099">#1099</a>)</li>
 <li><code>RFDETR.export_for_roboflow(output_dir)</code> — writes a Roboflow upload bundle (<code>weights.pt</code> + <code>class_names.txt</code>) without a network call; extracted from <code>deploy_to_roboflow</code>, which now delegates to it. (<a href="https://github.com/roboflow/rf-detr/pull/1086">#1086</a>)</li>
@@ -3233,7 +3370,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li><code>RFDETR.export(simplify=..., force=...)</code> — both kwargs removed from the signature. Deprecated since v1.6.0 with <code>remove_in="1.8.0"</code>; both were no-ops during the deprecation window. Callers passing these args must remove them before upgrading. (<a href="https://github.com/roboflow/rf-detr/pull/1102">#1102</a>)</li>
 </ul>
-<h3 id="fixed_12">Fixed<a class="headerlink" href="#fixed_12" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>RFDETR.from_checkpoint()</code> treating <code>num_classes</code> loaded from the checkpoint as a user-supplied override, which silently refused fine-tuning on a dataset with a different class count — the head refused to re-initialise and trained against the stale class count. An explicit <code>num_classes</code> kwarg from the caller still wins over both the checkpoint value and the dataset. (<a href="https://github.com/roboflow/rf-detr/pull/1106">#1106</a>)</li>
 <li>Fixed scale jitter missing from the non-square training crop: <code>RandomCrop</code> in the <code>option_b</code> branch replaced with <code>RandomSizedCrop</code>, restoring the scale-augmentation behaviour lost during the Albumentations migration. (<a href="https://github.com/roboflow/rf-detr/pull/1088">#1088</a>)</li>
@@ -3248,7 +3385,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="170-2026-04-29">[1.7.0] — 2026-04-29<a class="headerlink" href="#170-2026-04-29" title="Permanent link">&para;</a></h2>
-<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
+<h3 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>augmentation_backend</code> field on <code>TrainConfig</code> (<code>"cpu"</code> / <code>"auto"</code> / <code>"gpu"</code>): opt-in GPU-side augmentation via <a href="https://kornia.readthedocs.io">Kornia</a>, applied in <code>RFDETRDataModule.on_after_batch_transfer</code> once the batch is on the GPU. The CPU path is unchanged and remains the default. Install with <code>pip install 'rfdetr[augment]'</code>. (<a href="https://github.com/roboflow/rf-detr/pull/1003">#1003</a>)</li>
 <li>Kornia GPU augmentation supports instance segmentation: images, boxes, and per-instance masks augmented in sync on the GPU, where <code>augmentation_backend="gpu"/"auto"</code> was previously ignored silently. New public helper <code>collate_masks</code>; <code>build_kornia_pipeline</code> gains <code>with_masks: bool = False</code>; <code>unpack_boxes</code> gains an optional <code>masks_aug</code> tensor. <strong>Note</strong>: the mask buffer is <code>[B, N_max, H, W]</code> float32, roughly 500 MB at <code>B=8, N_max=50, H=W=560</code>; use <code>augmentation_backend="cpu"</code> on cards with limited VRAM. (<a href="https://github.com/roboflow/rf-detr/pull/1003">#1003</a>, closes <a href="https://github.com/roboflow/rf-detr/issues/997">#997</a>)</li>
@@ -3289,7 +3426,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>RFDETRSegPreview</code> — use <code>RFDETRSegNano</code>, <code>RFDETRSegSmall</code>, <code>RFDETRSegMedium</code>, or <code>RFDETRSegLarge</code> instead. Emits <code>FutureWarning</code> on instantiation; scheduled for removal in v2.0. (<a href="https://github.com/roboflow/rf-detr/pull/900">#900</a>)</li>
 <li><code>rfdetr.util</code> and <code>rfdetr.deploy</code> sub-modules are deprecated, removal in v1.9. A <code>__getattr__</code> hook on the <code>rfdetr</code> package emits a clear <code>ImportError</code> with migration guidance when these legacy paths are accessed. (<a href="https://github.com/roboflow/rf-detr/pull/839">#839</a>)</li>
 </ul>
-<h3 id="fixed_13">Fixed<a class="headerlink" href="#fixed_13" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_14">Fixed<a class="headerlink" href="#fixed_14" title="Permanent link">&para;</a></h3>
 <ul>
 <li>TFLite <code>GridSample</code> lowering bug fixed in two steps:<ul>
 <li>Fixed TFLite export (<code>format="tflite"</code>) producing detection scores that collapse to ~0.02, vs ~0.62 from ONNX; cause was an onnx2tf <code>GridSample</code> lowering bug (<a href="https://github.com/PINTO0309/onnx2tf/issues/274">PINTO0309/onnx2tf#274</a>) compounding through RF-DETR's per-decoder-layer <code>F.grid_sample</code>. The converter now passes onnx2tf's pseudo-<code>GridSample</code> replacement kwarg, logging a warning when it is absent. (<a href="https://github.com/roboflow/rf-detr/pull/1041">#1041</a>)</li>
@@ -3311,11 +3448,11 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="165-2026-04-22">[1.6.5] — 2026-04-22<a class="headerlink" href="#165-2026-04-22" title="Permanent link">&para;</a></h2>
-<h3 id="breaking-changes_5">Breaking Changes<a class="headerlink" href="#breaking-changes_5" title="Permanent link">&para;</a></h3>
+<h3 id="breaking-changes_6">Breaking Changes<a class="headerlink" href="#breaking-changes_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>predict()</code> stores the source image in <code>detections.metadata["source_image"]</code>, not <code>detections.data["source_image"]</code>, which supervision indexed per-detection and raised <code>IndexError</code> on. Update any code that reads <code>detections.data["source_image"]</code>. (<a href="https://github.com/roboflow/rf-detr/pull/972">#972</a>, <a href="https://github.com/roboflow/rf-detr/issues/968">#968</a>)</li>
 </ul>
-<h3 id="fixed_14">Fixed<a class="headerlink" href="#fixed_14" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_15">Fixed<a class="headerlink" href="#fixed_15" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed segmentation training crash on T4 and P100 GPUs, caused by cuDNN engine selection for depthwise convolution backward on some CUDA stacks. A custom <code>autograd.Function</code> disables cuDNN in forward and backward. (<a href="https://github.com/roboflow/rf-detr/pull/967">#967</a>)</li>
 <li>Fixed <code>ema_segm_mAP_50_95</code> and <code>ema_segm_mAP_50</code> being computed from the base, non-EMA, metric accumulator instead of the EMA accumulator, producing misleading validation scores for segmentation models. (<a href="https://github.com/roboflow/rf-detr/pull/980">#980</a>)</li>
@@ -3331,7 +3468,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li><code>predict()</code> includes <code>class_name</code> in <code>detections.data</code>, mapping each detection's 0-indexed class ID to its human-readable name. (<a href="https://github.com/roboflow/rf-detr/pull/914">#914</a>)</li>
 </ul>
-<h3 id="fixed_15">Fixed<a class="headerlink" href="#fixed_15" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_16">Fixed<a class="headerlink" href="#fixed_16" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed segmentation multi-GPU DDP training crashing with <code>RuntimeError: It looks like your LightningModule has parameters that were not used in producing the loss</code>, because the segmentation head's <code>sparse_forward()</code> leaves parameters unused on some steps: <code>build_trainer()</code> wraps <code>strategy="ddp"</code> with <code>DDPStrategy(find_unused_parameters=True)</code> when <code>segmentation_head=True</code>. Non-segmentation DDP and other strategies are unchanged. (<a href="https://github.com/roboflow/rf-detr/pull/942">#942</a>, <a href="https://github.com/roboflow/rf-detr/pull/947">#947</a>)</li>
 <li>Fixed fused AdamW crashing under FP32 multi-GPU training with <code>RuntimeError: params, grads, exp_avgs, and exp_avg_sqs must have same dtype, device, and layout</code>: <code>configure_optimizers()</code> and <code>clip_gradients()</code> gate fused AdamW on the trainer's actual precision, not GPU capability, which reports BF16 support on Ampere+ even at <code>precision="32-true"</code>. (<a href="https://github.com/roboflow/rf-detr/pull/942">#942</a>, <a href="https://github.com/roboflow/rf-detr/pull/947">#947</a>)</li>
@@ -3349,7 +3486,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>RFDETR.train()</code> auto-detects <code>num_classes</code> from the dataset directory when not explicitly set, reinitializing the detection head to the correct class count automatically. A warning is emitted when the configured value differs from the dataset count. (<a href="https://github.com/roboflow/rf-detr/pull/893">#893</a>)</li>
 <li><code>optimize_for_inference()</code> accepts dtype as a string name, e.g. <code>"float16"</code>, in addition to a <code>torch.dtype</code> object; invalid dtype inputs uniformly raise <code>TypeError</code>. (<a href="https://github.com/roboflow/rf-detr/pull/899">#899</a>)</li>
 </ul>
-<h3 id="fixed_16">Fixed<a class="headerlink" href="#fixed_16" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_17">Fixed<a class="headerlink" href="#fixed_17" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>models/lwdetr.py</code>: <code>reinitialize_detection_head</code> replaces <code>nn.Linear</code> modules instead of mutating <code>.data</code> in place, keeping <code>out_features</code> consistent with the weight shape, so ONNX export and <code>torch.jit.trace</code> no longer emit stale class counts for fine-tuned models. (<a href="https://github.com/roboflow/rf-detr/pull/904">#904</a>)</li>
 <li>Fixed <code>RFDETR.optimize_for_inference()</code> leaking a CUDA context on multi-GPU setups: the deep-copy, export, and JIT-trace steps run inside <code>torch.cuda.device(device)</code> to pin the context to the correct device. (<a href="https://github.com/roboflow/rf-detr/pull/899">#899</a>)</li>
@@ -3357,7 +3494,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Fixed <code>deploy_to_roboflow</code> failing with <code>FileNotFoundError</code> after the PyTorch Lightning migration: <code>class_names.txt</code> is written to the upload directory and <code>args.class_names</code> is populated before saving the checkpoint. (<a href="https://github.com/roboflow/rf-detr/pull/890">#890</a>)</li>
 </ul>
 <h2 id="162-2026-03-27">[1.6.2] — 2026-03-27<a class="headerlink" href="#162-2026-03-27" title="Permanent link">&para;</a></h2>
-<h3 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h3>
+<h3 id="added_8">Added<a class="headerlink" href="#added_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>RFDETR.predict(shape=...)</code> — optional <code>(height, width)</code> tuple overrides the default square inference resolution; useful when matching a non-square ONNX export. Both dimensions must be positive integers divisible by <code>patch_size × num_windows</code> as determined by the model configuration. (<a href="https://github.com/roboflow/rf-detr/pull/866">#866</a>)</li>
 </ul>
@@ -3365,7 +3502,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li><code>ModelConfig.device</code> and <code>RFDETR.train(device=...)</code> accept <code>torch.device</code> objects and indexed device strings such as <code>"cuda:0"</code>. Values are normalized to canonical torch-style strings. <code>RFDETR.train()</code> warns when an unmapped device type is passed to PyTorch Lightning auto-detection. (<a href="https://github.com/roboflow/rf-detr/pull/872">#872</a>)</li>
 </ul>
-<h3 id="fixed_17">Fixed<a class="headerlink" href="#fixed_17" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_18">Fixed<a class="headerlink" href="#fixed_18" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed ONNX export ignoring an explicit <code>patch_size</code> argument: <code>export()</code> and <code>predict()</code> resolve <code>patch_size</code> from <code>model_config</code> by default, validate it strictly (positive integer, not bool), and enforce that <code>(H, W)</code> dimensions are divisible by <code>patch_size × num_windows</code>. (<a href="https://github.com/roboflow/rf-detr/pull/876">#876</a>)</li>
 <li>Fixed ONNX export for models with dynamic batch dimensions: <code>H_.expand(N_)</code> replaced with <code>torch.full</code> for Python-int spatial dims, eliminating tracer failures. (<a href="https://github.com/roboflow/rf-detr/pull/871">#871</a>)</li>
@@ -3375,7 +3512,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li><code>RFDETR.export(..., simplify=..., force=...)</code> — both arguments are now no-ops and emit a <code>DeprecationWarning</code>. RF-DETR no longer runs ONNX simplification automatically; remove these arguments from your calls. Removal in v1.8. (<a href="https://github.com/roboflow/rf-detr/pull/861">#861</a>)</li>
 </ul>
-<h3 id="fixed_18">Fixed<a class="headerlink" href="#fixed_18" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_19">Fixed<a class="headerlink" href="#fixed_19" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>RFDETR.train()</code> raising a bare <code>ModuleNotFoundError</code> on a missing <code>rfdetr[train]</code> install; it now raises an <code>ImportError</code> naming the fix, <code>pip install "rfdetr[train,loggers]"</code>. (<a href="https://github.com/roboflow/rf-detr/pull/858">#858</a>)</li>
 <li>Fixed <code>AUG_AGGRESSIVE</code> preset: <code>translate_percent</code> <code>(0.1, 0.1)</code> was a degenerate range forcing <code>Affine</code> to always translate right/down by exactly 10%, corrected to <code>(-0.1, 0.1)</code>. (<a href="https://github.com/roboflow/rf-detr/pull/863">#863</a>)</li>
@@ -3385,7 +3522,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Fixed duplicate <code>ModelCheckpoint</code> state keys when <code>checkpoint_interval=1</code>; <code>last.ckpt</code> is omitted in that configuration to avoid collision. (<a href="https://github.com/roboflow/rf-detr/pull/859">#859</a>)</li>
 </ul>
 <h2 id="160-2026-03-20">[1.6.0] — 2026-03-20<a class="headerlink" href="#160-2026-03-20" title="Permanent link">&para;</a></h2>
-<h3 id="added_8">Added<a class="headerlink" href="#added_8" title="Permanent link">&para;</a></h3>
+<h3 id="added_9">Added<a class="headerlink" href="#added_9" title="Permanent link">&para;</a></h3>
 <ul>
 <li>PyTorch Lightning training building blocks: <code>RFDETRModelModule</code>, <code>RFDETRDataModule</code>, <code>build_trainer()</code>, and callbacks (<code>RFDETREMACallback</code>, <code>COCOEvalCallback</code>, <code>BestModelCallback</code>, <code>DropPathCallback</code>, <code>MetricsPlotCallback</code>) — standard PTL components, swap/subclass/extend any piece. Level 3: <code>rfdetr fit --config</code> CLI, zero Python required. (<a href="https://github.com/roboflow/rf-detr/pull/757">#757</a>, <a href="https://github.com/roboflow/rf-detr/pull/794">#794</a>)</li>
 <li>Multi-GPU DDP via <code>model.train()</code>: <code>strategy</code>, <code>devices</code>, and <code>num_nodes</code> added to <code>TrainConfig</code>; single-GPU behaviour unchanged when omitted. (<a href="https://github.com/roboflow/rf-detr/pull/808">#808</a>)</li>
@@ -3412,7 +3549,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>rfdetr.deploy.*</code> — redirects to <code>rfdetr.export.*</code> with a <code>DeprecationWarning</code>. Migrate before v1.7.</li>
 <li><code>rfdetr.util.*</code> — redirects to <code>rfdetr.utilities.*</code> with a <code>DeprecationWarning</code>. Migrate before v1.7.</li>
 </ul>
-<h3 id="fixed_19">Fixed<a class="headerlink" href="#fixed_19" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_20">Fixed<a class="headerlink" href="#fixed_20" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed a cryptic <code>RuntimeError</code> / tensor-size mismatch when a checkpoint is incompatible with the current model architecture; a descriptive <code>ValueError</code> is raised instead, covering <code>segmentation_head</code> mismatch and <code>patch_size</code> mismatch. (<a href="https://github.com/roboflow/rf-detr/pull/810">#810</a>)</li>
 <li>Fixed <code>class_names</code> not reflecting dataset labels on <code>model.predict()</code> after training; class names are synced from the dataset so inference always uses the correct label list. (<a href="https://github.com/roboflow/rf-detr/pull/816">#816</a>)</li>
@@ -3427,11 +3564,11 @@ APIs described here may change or may never ship in a release, so use the <a hre
 </ul>
 <hr />
 <h2 id="152-2026-03-04">[1.5.2] — 2026-03-04<a class="headerlink" href="#152-2026-03-04" title="Permanent link">&para;</a></h2>
-<h3 id="added_9">Added<a class="headerlink" href="#added_9" title="Permanent link">&para;</a></h3>
+<h3 id="added_10">Added<a class="headerlink" href="#added_10" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added peak GPU memory (<code>max_mem</code> in MB) to training and evaluation progress bars on CUDA; omitted on CPU and MPS. (<a href="https://github.com/roboflow/rf-detr/pull/773">#773</a>)</li>
 </ul>
-<h3 id="fixed_20">Fixed<a class="headerlink" href="#fixed_20" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_21">Fixed<a class="headerlink" href="#fixed_21" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>aug_config</code> being silently ignored when training on YOLO-format datasets; <code>build_roboflow_from_yolo</code> never forwarded the value, so transforms always fell back to the default. (<a href="https://github.com/roboflow/rf-detr/pull/774">#774</a>)</li>
 <li>Fixed segmentation evaluation metrics not being written to <code>results_mask.json</code> during validation and test runs. (<a href="https://github.com/roboflow/rf-detr/pull/772">#772</a>)</li>
@@ -3441,7 +3578,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Fixed evaluation metric corruption on 1-indexed Roboflow datasets, caused by a flawed contiguity check in <code>_should_use_raw_category_ids</code>. (<a href="https://github.com/roboflow/rf-detr/pull/755">#755</a>)</li>
 </ul>
 <h2 id="151-2026-02-27">[1.5.1] — 2026-02-27<a class="headerlink" href="#151-2026-02-27" title="Permanent link">&para;</a></h2>
-<h3 id="added_10">Added<a class="headerlink" href="#added_10" title="Permanent link">&para;</a></h3>
+<h3 id="added_11">Added<a class="headerlink" href="#added_11" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added support for nested Albumentations containers (<code>OneOf</code>, <code>Sequential</code>) inside <code>aug_config</code>. (<a href="https://github.com/roboflow/rf-detr/pull/752">#752</a>)</li>
 </ul>
@@ -3449,7 +3586,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li>Migrated dataset transform pipeline to torchvision-native <code>Compose</code>, <code>ToImage</code>, and <code>ToDtype</code>; <code>Normalize</code> defaults to ImageNet mean/std. (<a href="https://github.com/roboflow/rf-detr/pull/745">#745</a>)</li>
 </ul>
-<h3 id="fixed_21">Fixed<a class="headerlink" href="#fixed_21" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_22">Fixed<a class="headerlink" href="#fixed_22" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>RFDETRMedium</code> missing from the public API; <code>__all__</code> contained a duplicate <code>RFDETRSmall</code> entry. (<a href="https://github.com/roboflow/rf-detr/pull/748">#748</a>)</li>
 <li>Fixed <code>AR50_90</code> reporting an incorrect value in <code>MetricsMLFlowSink</code>, due to a wrong COCO evaluation index. (<a href="https://github.com/roboflow/rf-detr/pull/735">#735</a>)</li>
@@ -3459,7 +3596,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Pinned <code>onnxsim&lt;0.6.0</code> to prevent <code>pip install</code> from hanging indefinitely. (<a href="https://github.com/roboflow/rf-detr/pull/749">#749</a>)</li>
 </ul>
 <h2 id="150-2026-02-23">[1.5.0] — 2026-02-23<a class="headerlink" href="#150-2026-02-23" title="Permanent link">&para;</a></h2>
-<h3 id="added_11">Added<a class="headerlink" href="#added_11" title="Permanent link">&para;</a></h3>
+<h3 id="added_12">Added<a class="headerlink" href="#added_12" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added custom training augmentations via <code>aug_config</code> in <code>model.train()</code> — accepts a dict of Albumentations transforms, a built-in preset (<code>AUG_CONSERVATIVE</code>, <code>AUG_AGGRESSIVE</code>, <code>AUG_AERIAL</code>, <code>AUG_INDUSTRIAL</code>), or <code>{}</code> to disable. Bounding boxes and segmentation masks are transformed automatically. (<a href="https://github.com/roboflow/rf-detr/pull/263">#263</a>, <a href="https://github.com/roboflow/rf-detr/pull/702">#702</a>)</li>
 <li>Added <code>save_dataset_grids=True</code> in <code>TrainConfig</code> to write 3×3 JPEG grids of augmented samples to <code>output_dir</code> before training begins. (<a href="https://github.com/roboflow/rf-detr/pull/153">#153</a>)</li>
@@ -3474,7 +3611,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li>Deprecated <code>OPEN_SOURCE_MODELS</code> constant in favour of <code>ModelWeights</code> enum. (<a href="https://github.com/roboflow/rf-detr/pull/696">#696</a>)</li>
 <li>Added MD5 checksum validation for pretrained weight downloads. (<a href="https://github.com/roboflow/rf-detr/pull/679">#679</a>)</li>
 </ul>
-<h3 id="fixed_22">Fixed<a class="headerlink" href="#fixed_22" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_23">Fixed<a class="headerlink" href="#fixed_23" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed Albumentations bool-mask crash during segmentation training. (<a href="https://github.com/roboflow/rf-detr/pull/706">#706</a>)</li>
 <li>Fixed <code>UnboundLocalError</code> when resuming training from a completed checkpoint. (<a href="https://github.com/roboflow/rf-detr/pull/707">#707</a>)</li>
@@ -3495,13 +3632,13 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li>Pretrained weight downloads validate against an MD5 checksum to detect corrupted files. (<a href="https://github.com/roboflow/rf-detr/pull/679">#679</a>)</li>
 </ul>
-<h3 id="fixed_23">Fixed<a class="headerlink" href="#fixed_23" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_24">Fixed<a class="headerlink" href="#fixed_24" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed <code>deploy_to_roboflow</code> failing for segmentation model exports. (<a href="https://github.com/roboflow/rf-detr/pull/578">#578</a>)</li>
 <li>Fixed missing <code>info</code> key in COCO export format. (<a href="https://github.com/roboflow/rf-detr/pull/681">#681</a>)</li>
 </ul>
 <h2 id="142-2026-02-12">[1.4.2] — 2026-02-12<a class="headerlink" href="#142-2026-02-12" title="Permanent link">&para;</a></h2>
-<h3 id="added_12">Added<a class="headerlink" href="#added_12" title="Permanent link">&para;</a></h3>
+<h3 id="added_13">Added<a class="headerlink" href="#added_13" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added <code>generate_coco_dataset()</code> utility for generating synthetic COCO-format datasets with configurable class counts, split ratios, and bounding box annotations. (<a href="https://github.com/roboflow/rf-detr/pull/617">#617</a>)</li>
 <li>Added <code>run_test=False</code> to <code>TrainConfig</code> — skip test-split evaluation when your dataset has no test set. (<a href="https://github.com/roboflow/rf-detr/pull/628">#628</a>)</li>
@@ -3511,12 +3648,12 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <li><code>model.predict()</code> accepts image URLs directly, with no need to download images before inference. (<a href="https://github.com/roboflow/rf-detr/pull/629">#629</a>)</li>
 <li>Plus models (<code>RFDETRXLarge</code>, <code>RFDETR2XLarge</code>) are distributed as a separate <code>rfdetr_plus</code> package under the Roboflow Model License. (<a href="https://github.com/roboflow/rf-detr/pull/645">#645</a>)</li>
 </ul>
-<h3 id="fixed_24">Fixed<a class="headerlink" href="#fixed_24" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_25">Fixed<a class="headerlink" href="#fixed_25" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed segmentation ONNX export failure. (<a href="https://github.com/roboflow/rf-detr/pull/626">#626</a>)</li>
 </ul>
 <h2 id="141-2026-01-30">[1.4.1] — 2026-01-30<a class="headerlink" href="#141-2026-01-30" title="Permanent link">&para;</a></h2>
-<h3 id="added_13">Added<a class="headerlink" href="#added_13" title="Permanent link">&para;</a></h3>
+<h3 id="added_14">Added<a class="headerlink" href="#added_14" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added native YOLO dataset format support alongside COCO. (<a href="https://github.com/roboflow/rf-detr/pull/74">#74</a>)</li>
 <li>Added <code>--print-freq</code> CLI argument to control training log frequency. (<a href="https://github.com/roboflow/rf-detr/pull/603">#603</a>)</li>
@@ -3525,7 +3662,7 @@ APIs described here may change or may never ship in a release, so use the <a hre
 <ul>
 <li>Pinned <code>transformers</code> to <code>&lt;5.0.0</code> to prevent incompatibility with the transformers v5 API. (<a href="https://github.com/roboflow/rf-detr/pull/599">#599</a>)</li>
 </ul>
-<h3 id="fixed_25">Fixed<a class="headerlink" href="#fixed_25" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_26">Fixed<a class="headerlink" href="#fixed_26" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed class count mismatch in <code>train_from_config</code> for Roboflow-uploaded datasets. (<a href="https://github.com/roboflow/rf-detr/pull/588">#588</a>)</li>
 <li>Improved <code>num_classes</code> mismatch warning messages to be actionable rather than misleading. (<a href="https://github.com/roboflow/rf-detr/pull/261">#261</a>)</li>
