@@ -198,3 +198,44 @@ These examples use OpenCV for decoding and display. Replace `<SOURCE_VIDEO_PATH>
     video_capture.release()
     cv2.destroyAllWindows()
     ```
+
+### Run the detector on every other frame
+
+`rfdetr.utilities.video.predict_video` runs the model on every `detect_every`-th frame and moves the boxes of the last detector frame with Lucas-Kanade optical flow on the frames in between. The flow runs on the CPU with [OpenCV](https://pypi.org/project/opencv-python-headless/), which `rfdetr` does not require directly (`pip install opencv-python-headless`; `pip install "rfdetr[augment]"` also brings it in). It needs no change to the model. Objects that appear between two detector frames are reported from the next detector frame on, and boxes drift on fast or non-rigid motion; a box can also stay in place for a few frames after its object has left the frame. Raise `detect_every` only as far as your scene allows. A frame that differs strongly from the previous one (most hard cuts) runs the detector, whatever `detect_every` says; a cut between two similar-looking or equally dark scenes can go unnoticed until the next scheduled detector frame. A propagated frame carries the boxes, classes, confidences and `data` of the detector frame, not `tracker_id` or `metadata`. Segmentation and keypoint models are refused because masks and keypoints are not propagated, and `include_source_image` cannot be passed.
+
+```python
+import cv2
+from rfdetr import RFDETRSmall
+from rfdetr.utilities.video import predict_video
+
+model = RFDETRSmall()
+
+
+def read_rgb_frames(path: str):
+    video_capture = cv2.VideoCapture(path)
+    while True:
+        success, frame_bgr = video_capture.read()
+        if not success:
+            break
+        yield cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+    video_capture.release()
+
+
+for detections in predict_video(model, read_rgb_frames("<SOURCE_VIDEO_PATH>"), detect_every=2, threshold=0.5):
+    print(len(detections), "objects")
+```
+
+Measured with `RFDETRSmall` on an RTX 5070 (default eager `predict` with `threshold=0.25`, 150 frames per video, decoding excluded, best of five passes, on a machine that was also running an unrelated CPU job), against `predict` on every frame:
+
+| video                           | detect_every=2 | detect_every=4 |
+| ------------------------------- | -------------- | -------------- |
+| `vehicles-2` (1080p)            | 1.35x faster   | 2.01x faster   |
+| `people-walking` (1080p)        | 1.41x faster   | 2.17x faster   |
+| `basketball-1` (1080p)          | 1.63x faster   | 2.81x faster   |
+| `milk-bottling-plant` (1080p)   | 1.59x faster   | 2.68x faster   |
+| `skiing` (1080p, moving camera) | 1.53x faster   | 2.59x faster   |
+| `market-square` (2160x3840)     | 1.35x faster   | 2.11x faster   |
+
+These are the [supervision](https://pypi.org/project/supervision/) video assets. The class-agnostic mean average precision (mAP50:95) of the propagated detections, scored against the detections of `predict` on every frame with confidence 0.5 or higher (not against human labels), was 0.82 to 0.97 at `detect_every=2` and 0.67 to 0.89 at `detect_every=4`.
+
+The gain is the time of the skipped detector calls minus the optical-flow cost, which grows with the number of boxes: with hundreds of boxes (a very low `threshold` or a crowded scene) the flow can cost more than the detector call it replaces, so measure on your own footage. Against a model that is already optimized with `model.inference(compile=True, dtype=torch.float16)` (every-frame `predict` at 4.2 ms on 1080p), the same measurement gave 1.01x at `detect_every=2` and 1.37x at `detect_every=4` on `vehicles-2` (about 40 boxes per frame at `threshold=0.25`), and 1.25x and 1.96x on `skiing` (about 8 boxes per frame). With `model.inference(compile=True, dtype=torch.float16, compile_backend="cudagraph")` (3.9 ms) the figures were 0.98x and 1.30x on `vehicles-2`, and 1.21x and 1.87x on `skiing`.
