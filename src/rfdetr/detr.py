@@ -2263,6 +2263,7 @@ class RFDETR:
         notes: object = None,
         output_name: str | None = None,
         trt_timing_cache: str | os.PathLike[str] | None = None,
+        trt_optimization_level: int | None = None,
         coreml_precision: str | None = None,
         coreml_neural_engine: bool = False,
         coreai_precision: str | None = None,
@@ -2455,6 +2456,12 @@ class RFDETR:
                 (Polygraphy writes the cache before the engine is returned); the engine can simply be rebuilt.
                 ``None`` (default) reads and writes no file.  Ignored for every other format; passing a non-``None``
                 value there emits a ``UserWarning`` instead of silently doing nothing.
+            trt_optimization_level: TensorRT's builder optimization level, ``0`` to ``5``, for ``format="tensorrt"``.
+                TensorRT's own default is ``3``.  On the INT8 engines of Detection Nano, Seg Small and Keypoint
+                Preview, level ``1`` gave a smaller engine for a little more latency, with AP close to the level-3
+                engine's; it was checked on one GPU (an RTX 5070) and not for FP16 engines, so measure it on your
+                model.  ``None`` (default) leaves TensorRT's level.  Ignored for every other format; passing a
+                non-``None`` value there emits a ``UserWarning`` instead of silently doing nothing.
             notes: Optional user-defined metadata (string, dict, list,
                 or any JSON-serialisable value) to embed in the metadata of
                 the exported artifact, for a format that carries it (see
@@ -2545,7 +2552,8 @@ class RFDETR:
                 ``bool``, when the installed TensorRT has no hardware compatibility level of the requested name, or
                 when ``trt_hardware_compatibility="ampere_plus"`` is asked of a CUDA device older than Ampere.
                 Also raised for ``format="tensorrt"`` when ``trt_timing_cache`` is not a non-empty file path, ends in
-                a path separator, or is a directory.
+                a path separator, or is a directory, or when ``trt_optimization_level`` is not ``None`` or an ``int``
+                from 0 to 5.
             TypeError: If ``notes`` holds a value JSON cannot encode, for a format that embeds it.
             OSError: If ``format="tensorrt"`` and the directory or files of ``trt_timing_cache`` cannot be created or
                 written, or it is a symbolic link to a missing file.
@@ -2602,6 +2610,7 @@ class RFDETR:
             ("trt_hardware_compatibility", trt_hardware_compatibility is not None),
             ("trt_version_compatible", trt_version_compatible),
             ("trt_timing_cache", trt_timing_cache is not None),
+            ("trt_optimization_level", trt_optimization_level is not None),
         ):
             if requested and format != "tensorrt":
                 warnings.warn(
@@ -2658,6 +2667,7 @@ class RFDETR:
             trt_hardware_compatibility=trt_hardware_compatibility,
             trt_version_compatible=trt_version_compatible,
             trt_timing_cache=trt_timing_cache,
+            trt_optimization_level=trt_optimization_level,
         )
         # Constructing the exporter validates the format's own settings (precision, quantization, notes, ...), then
         # warns about the ones it ignores.

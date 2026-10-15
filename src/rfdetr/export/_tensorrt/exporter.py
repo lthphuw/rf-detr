@@ -75,6 +75,9 @@ logger = get_logger()
 HardwareCompatibility = Literal["ampere_plus", "same_compute_capability"]
 #: The same spellings as a tuple, so validation reads the annotation instead of keeping a second list.
 _HARDWARE_COMPATIBILITY_LEVELS: Final[tuple[str, ...]] = get_args(HardwareCompatibility)
+
+#: The builder optimization levels TensorRT accepts (``IBuilderConfig.builder_optimization_level``); its default is 3.
+_OPTIMIZATION_LEVELS: Final[range] = range(6)
 #: Lowest compute capability ``"ampere_plus"`` can be built on: NVIDIA Ampere is 8.x.
 _AMPERE_COMPUTE_CAPABILITY: Final[tuple[int, int]] = (8, 0)
 
@@ -777,6 +780,9 @@ class TensorRTConfig(ExportConfig):
             already did. A cache written by another TensorRT major version, or an empty or damaged file, does not stop
             the build: TensorRT logs an error, builds as if there were no cache, and the file gets this build's
             timings. ``None`` (the default) leaves TensorRT's own per-build cache in charge and touches no file.
+        optimization_level: TensorRT's builder optimization level, ``0`` to ``5``. TensorRT's own default is ``3``;
+            ``None`` (the default) leaves it. On the INT8 engines of Detection Nano, Seg Small and Keypoint Preview,
+            level 1 gave a smaller engine for a little more latency on an RTX 5070; FP16 engines were not checked.
     """
 
     opset_version: int = 17
@@ -790,6 +796,7 @@ class TensorRTConfig(ExportConfig):
     hardware_compatibility: HardwareCompatibility | None = None
     version_compatible: bool = False
     timing_cache: str | os.PathLike[str] | None = None
+    optimization_level: int | None = None
 
     def onnx_stage(self) -> OnnxConfig:
         """Return the configuration for the ONNX export this format builds from.
@@ -863,6 +870,7 @@ class TensorRTExporter(Exporter[TensorRTConfig]):
         "hardware_compatibility": "trt_hardware_compatibility",
         "version_compatible": "trt_version_compatible",
         "timing_cache": "trt_timing_cache",
+        "optimization_level": "trt_optimization_level",
     }
     format = "tensorrt"
     display_name = "TensorRT"
@@ -879,7 +887,8 @@ class TensorRTExporter(Exporter[TensorRTConfig]):
                 (``bool`` included, since ``bool`` is a subclass of ``int``); with ``max_batch_size <
                 opt_batch_size`` or ``opt_batch_size < 1``; with a ``metadata`` that is not a ``bool``; with a
                 ``hardware_compatibility`` other than ``None``, ``"ampere_plus"`` or ``"same_compute_capability"``;
-                with a ``version_compatible`` that is not a ``bool``; or with a ``timing_cache`` that is not a
+                with a ``version_compatible`` that is not a ``bool``; with an ``optimization_level`` that is not
+                ``None`` or an ``int`` from 0 to 5 (``bool`` included); or with a ``timing_cache`` that is not a
                 non-empty file path, that contains a NUL byte, or that ends in a path separator.
         """
         super()._check_capabilities()
@@ -887,6 +896,7 @@ class TensorRTExporter(Exporter[TensorRTConfig]):
         if not isinstance(self.config.metadata, bool):
             raise ValueError(f"trt_metadata must be a bool, got {self.config.metadata!r}.")
         self._check_portability()
+        self._check_optimization_level()
         self._check_timing_cache()
         if not self.config.dynamic_batch:
             return
@@ -1071,6 +1081,19 @@ class TensorRTExporter(Exporter[TensorRTConfig]):
             raise ValueError(f"trt_hardware_compatibility must be None or one of {allowed}, got {level!r}.")
         if not isinstance(self.config.version_compatible, bool):
             raise ValueError(f"trt_version_compatible must be a bool, got {self.config.version_compatible!r}.")
+
+    def _check_optimization_level(self) -> None:
+        """Reject an optimization level TensorRT would only refuse deep inside the build.
+
+        Raises:
+            ValueError: If ``optimization_level`` is not ``None`` or an ``int`` from :data:`_OPTIMIZATION_LEVELS`
+                (a ``bool`` is not accepted, though it is a subclass of ``int``).
+        """
+        level = self.config.optimization_level
+        if level is not None and (
+            isinstance(level, bool) or not isinstance(level, int) or level not in _OPTIMIZATION_LEVELS
+        ):
+            raise ValueError(f"trt_optimization_level must be None or an int from 0 to 5, got {level!r}.")
 
     def _check_timing_cache(self) -> None:
         """Reject a ``timing_cache`` that cannot name a file, before the export pays for a forward pass.
@@ -1672,6 +1695,8 @@ class TensorRTExporter(Exporter[TensorRTConfig]):
         # needs, so the parameter goes now rather than pinning TensorRT resources until the caller drops the error.
         del network
         options = {**self._portability_options(), **self._timing_cache_options(timing_cache)}
+        if self.config.optimization_level is not None:
+            options["builder_optimization_level"] = self.config.optimization_level
         if self.config.dynamic_batch:
             return CreateConfig(fp16=fp16, profiles=[self._batch_profile(onnx_path, dynamic_inputs)], **options)
         # The fp16 cast path refuses this from the ONNX file, before it writes anything; this is the last-resort

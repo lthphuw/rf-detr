@@ -403,7 +403,7 @@ The INT8 placement follows what was measured, not "quantize every matrix multipl
 - The attention rule above applies unchanged. Only `RFDETRSegSmall` (257 tokens per window) and `RFDETRSegMedium` (325) run INT8 attention, in the 9 windowed blocks of their 12 backbone blocks (the other 3 attend globally). `RFDETRSegNano` (one 677-token window per block), `RFDETRSegLarge` (442) and `RFDETRKeypointPreview` (577) keep all attention in FP16, so only their backbone MLPs and the decoder's cross-attention, feed-forward and reference-point layers run in INT8.
 - `RFDETRSegXLarge` and `RFDETRSeg2XLarge` (`rfdetr_plus`) are accepted but were not measured. `backbone_only=True` is refused with `ValueError`.
 - A static batch (`dynamic_batch=True` is refused), `fp16=True`, and TensorRT 10 or newer. Every table above was measured on TensorRT 11.4. The detection placement was also measured on 10.16 and 11.3, the segmentation and keypoint models only on 11.4; the other releases from 10 on are accepted but untested. The batch is fixed when you build the engine.
-- Only an RTX 5070 (sm_120) and a Tesla T4 (sm_75) were measured, and only without `trt_hardware_compatibility`, `trt_version_compatible` or a shared `trt_timing_cache`. These settings are accepted with `quantization="int8"`, but engines built with them were not measured, and a portable engine may not get the fused INT8 attention kernel the speedup relies on.
+- Only an RTX 5070 (sm_120) and a Tesla T4 (sm_75) were measured, and only without `trt_hardware_compatibility`, `trt_version_compatible`, a shared `trt_timing_cache` or a `trt_optimization_level` other than TensorRT's default (see [Smaller Engines](#smaller-engines) for what was checked). These settings are accepted with `quantization="int8"`, but engines built with them were not measured, and a portable engine may not get the fused INT8 attention kernel the speedup relies on.
 - INT8 attention relies on TensorRT's fused INT8 attention kernel, which NVIDIA lists for sm_75 to sm_90, sm_120 and sm_121. On other GPUs (for example sm_100, B200) it would run unfused, so measure on your GPU before deploying.
 
 !!! note "Who consumes the `.trt` engine?"
@@ -486,6 +486,16 @@ runtime = TRTInference(str(engine), sync_mode=True, engine_host_code_allowed=Tru
 
 Only turn it on for a file you built yourself or otherwise trust. `TRTInference` lives in a private module, so like the classes under [Python API Conversion](#python-api-conversion) it can change without notice; `sync_mode=True` avoids the [`pycuda`](https://pypi.org/project/pycuda/) dependency of its default mode.
 
+## Smaller Engines
+
+TensorRT's builder optimization level trades engine size and speed against the effort the build spends searching. `trt_optimization_level` sets it, `0` to `5`; TensorRT's default is `3`, and `None` (the default here) leaves it. On the INT8 engines of one detection, one segmentation and one keypoint model, level `1` gave a smaller engine for a little more latency, and the AP stayed close to the level-3 engine's:
+
+```python
+model.export(format="tensorrt", quantization="int8", calibration_data="path/to/images", trt_optimization_level=1)
+```
+
+Level `0` made the Detection Nano engine much slower, and the one check at level `5` did not improve it, so levels `1` to `3` are the range worth trying. This comes from single builds of Detection Nano, Seg Small and Keypoint Preview on one GPU (an RTX 5070, TensorRT 11.4). It was not repeated on a Tesla T4, with TensorRT 10, for FP16 engines or for the other models, and it is not part of the Section 8.1 benchmark, so these pages quote no figures for it. Export at both levels and compare engine size, latency and AP on your own model before relying on it.
+
 ## Reuse the Timing Cache
 
 A large share of an engine build goes into timing candidate kernels for each layer. TensorRT can save those timings in a cache file, and a later build that uses the file skips the timing it already did. Pass `trt_timing_cache` to keep one across exports:
@@ -529,4 +539,4 @@ exporter = TensorRTExporter(TensorRTConfig(fp16=True, dynamic_batch=True, max_ba
 engine_path = exporter.build_engine("output/inference_model.onnx")
 ```
 
-The portability options work here too, as `TensorRTConfig(hardware_compatibility="ampere_plus")` and `TensorRTConfig(version_compatible=True)`; see [Portable Engines](#portable-engines).
+The portability options work here too, as `TensorRTConfig(hardware_compatibility="ampere_plus")` and `TensorRTConfig(version_compatible=True)`; see [Portable Engines](#portable-engines). `TensorRTConfig(optimization_level=1)` sets the builder optimization level; see [Smaller Engines](#smaller-engines).

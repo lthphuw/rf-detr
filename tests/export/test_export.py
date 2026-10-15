@@ -589,6 +589,56 @@ def test_rfdetr_export_warns_when_trt_timing_cache_used_for_another_format(
     assert not cache.exists()
 
 
+@pytest.mark.parametrize("level", [0, 1])
+def test_rfdetr_export_warns_when_trt_optimization_level_used_for_another_format(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, level: int
+) -> None:
+    """`trt_optimization_level` outside `format="tensorrt"` is ignored and must warn rather than silently no-op."""
+    model = _make_tensorrt_export_model()
+    onnx_output = str(tmp_path / "inference_model.onnx")
+
+    monkeypatch.setattr("rfdetr.export.prepare.make_infer_image", lambda *_a, **_kw: _make_mock_infer_tensor())
+    monkeypatch.setattr("rfdetr.export._onnx.exporter.OnnxExporter._convert", lambda *_a, **_kw: onnx_output)
+    monkeypatch.setattr("rfdetr.detr.deepcopy", lambda x: x)
+
+    with pytest.warns(UserWarning, match=r"`trt_optimization_level`.*ignored"):
+        _detr_module.RFDETR.export(
+            model, output_dir=str(tmp_path), format="onnx", trt_optimization_level=level, shape=(14, 14)
+        )
+
+
+@pytest.mark.parametrize("level", [0, 1])
+def test_rfdetr_export_tensorrt_forwards_trt_optimization_level(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, level: int
+) -> None:
+    """`RFDETR.export(format="tensorrt", trt_optimization_level=...)` puts the level on the exporter's config,
+    unwarned."""
+    model = _make_tensorrt_export_model()
+    onnx_output = str(tmp_path / "inference_model.onnx")
+
+    monkeypatch.setattr("rfdetr.export.prepare.make_infer_image", lambda *_a, **_kw: _make_mock_infer_tensor())
+    monkeypatch.setattr("rfdetr.export._onnx.exporter.OnnxExporter._convert", lambda *_a, **_kw: onnx_output)
+    monkeypatch.setattr("rfdetr.detr.deepcopy", lambda x: x)
+    monkeypatch.setattr("rfdetr.export._tensorrt.exporter._IS_TENSORRT_AVAILABLE", True)
+    monkeypatch.setattr("rfdetr.export._tensorrt.exporter._IS_POLYGRAPHY_AVAILABLE", True)
+
+    with (
+        patch.object(
+            TensorRTExporter,
+            "_build",
+            autospec=True,
+            return_value=_BuiltEngine(path=str(tmp_path / "inference_model.trt"), fp16=True, engine_facts=None),
+        ) as build_engine,
+        warnings.catch_warnings(),
+    ):
+        warnings.simplefilter("error", UserWarning)
+        _detr_module.RFDETR.export(
+            model, output_dir=str(tmp_path), format="tensorrt", trt_optimization_level=level, shape=(14, 14)
+        )
+
+    assert build_engine.call_args.args[0].config.optimization_level == level
+
+
 def test_rfdetr_export_tensorrt_forwards_trt_timing_cache(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """`RFDETR.export(format="tensorrt", trt_timing_cache=...)` puts the path on the exporter's config, unwarned."""
     model = _make_tensorrt_export_model()

@@ -3452,6 +3452,71 @@ class TestTensorRTEndToEnd:
         assert len(cache.read_bytes()) > len(damaged), "the build must write a fuller timing cache over the damaged one"
 
 
+class TestOptimizationLevel:
+    """``optimization_level`` is TensorRT's builder optimization level, passed to the builder only when it is set."""
+
+    @pytest.mark.parametrize("level", range(6))
+    def test_the_level_reaches_the_builder(self, monkeypatch: pytest.MonkeyPatch, level: int) -> None:
+        captured = _patch_polygraphy_chain_recording(monkeypatch)
+
+        TensorRTExporter(TensorRTConfig(fp16=False, optimization_level=level)).build_engine("model.onnx")
+
+        assert captured["config"] == {"fp16": False, "builder_optimization_level": level}
+
+    def test_the_default_passes_no_level(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        captured = _patch_polygraphy_chain_recording(monkeypatch)
+
+        TensorRTExporter(TensorRTConfig(fp16=False)).build_engine("model.onnx")
+
+        assert "builder_optimization_level" not in captured["config"]
+
+    def test_the_level_travels_with_the_batch_profile(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        captured = _patch_polygraphy_chain_recording(
+            monkeypatch, _FakeNetwork(_FakeNetworkInput("input", (-1, 3, 384, 384)))
+        )
+        monkeypatch.setitem(sys.modules, "tensorrt", types.SimpleNamespace(__version__="10.16.1.11"))
+
+        TensorRTExporter(
+            TensorRTConfig(fp16=False, dynamic_batch=True, max_batch_size=4, optimization_level=1)
+        ).build_engine("model.onnx")
+
+        assert captured["config"]["builder_optimization_level"] == 1
+        assert "profiles" in captured["config"]
+
+    @pytest.mark.parametrize(
+        "level",
+        [
+            pytest.param(-1, id="below-range"),
+            pytest.param(6, id="above-range"),
+            pytest.param(True, id="bool"),
+            pytest.param(1.0, id="float"),
+            pytest.param("1", id="string"),
+        ],
+    )
+    def test_a_level_outside_zero_to_five_is_refused_before_any_work(self, level: object) -> None:
+        with pytest.raises(ValueError, match=r"trt_optimization_level.*0 to 5"):
+            TensorRTExporter(TensorRTConfig(optimization_level=level))
+
+    @tensorrt_only
+    @pytest.mark.gpu
+    @pytest.mark.integration
+    @pytest.mark.e2e_tensorrt
+    def test_the_installed_polygraphy_applies_the_level_to_a_real_builder_config(self) -> None:
+        """The unit tests above record the keyword the exporter passes; this builds a real ``IBuilderConfig``.
+
+        A Polygraphy release that renamed the keyword, or a TensorRT without the attribute, would go unnoticed there.
+        """
+        import tensorrt as trt
+        from polygraphy.backend.trt import CreateConfig
+
+        builder = trt.Builder(trt.Logger(trt.Logger.ERROR))
+        network = builder.create_network()
+
+        config = CreateConfig(builder_optimization_level=1)(builder, network)
+
+        assert config.builder_optimization_level == 1
+
+
 class TestTimingCacheSafety:
     """The timing cache Polygraphy is handed is one well-defined regular file, and a bad one is refused up front."""
 
