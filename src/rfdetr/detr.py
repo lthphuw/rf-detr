@@ -2565,10 +2565,10 @@ class RFDETR:
         # Both moves go through ``_locked_move``: they rewrite the parameters a concurrent first ``predict()`` may be
         # moving to the accelerator at the same time. The span between them is not locked — a ``predict()`` arriving
         # mid-export can move the weights back onto the accelerator, costing this staging its freed memory.
-        self.model.model = _locked_move(self.model.model, "cpu")
-        model = deepcopy(self.model.model)
-        model.to(device)
         try:
+            self.model.model = _locked_move(self.model.model, "cpu")
+            model = deepcopy(self.model.model)
+            model.to(device)
             os.makedirs(output_dir, exist_ok=True)
             from rfdetr.export._runtime.metadata import metadata_from_model
 

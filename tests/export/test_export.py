@@ -820,6 +820,39 @@ def test_rfdetr_export_tensorrt_failure_restores_device(
     )
 
 
+@pytest.mark.parametrize(
+    ("deepcopy_behavior", "error"),
+    [
+        pytest.param({"side_effect": TypeError("cannot pickle '_thread.lock' object")}, TypeError, id="deepcopy-fails"),
+        pytest.param(
+            {"return_value": MagicMock(**{"to.side_effect": RuntimeError("CUDA out of memory")})},
+            RuntimeError,
+            id="copy-move-fails",
+        ),
+    ],
+)
+def test_rfdetr_export_restores_the_live_model_when_staging_the_copy_fails(
+    mocker: MockerFixture, tmp_path: Path, deepcopy_behavior: dict[str, object], error: type[Exception]
+) -> None:
+    """A failure while copying the CPU-staged live model, or moving that copy back, must still restore the live model.
+
+    `export()` moves the live model to CPU before taking the copy it converts. A `deepcopy` that raises (an attribute
+    that cannot be copied, host memory) or an out-of-memory error moving the copy to the device would otherwise leave
+    the caller's model stranded on CPU.
+    """
+    core_model = _DeviceTrackingCoreModel()
+    original_device = "meta"
+    model = _make_export_model(core_model=core_model, device=original_device)
+    mocker.patch("rfdetr.detr.deepcopy", **deepcopy_behavior)
+
+    with pytest.raises(error):
+        _detr_module.RFDETR.export(model, output_dir=str(tmp_path), shape=(14, 14))
+
+    assert core_model.to_calls == ["cpu", original_device], (
+        f"expected the staging move to 'cpu' then the restore to {original_device!r}, got {core_model.to_calls!r}"
+    )
+
+
 def test_rfdetr_export_moves_the_live_model_under_the_device_move_lock(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

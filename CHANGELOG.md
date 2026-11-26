@@ -64,6 +64,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - `RFDETR.export(format="onnx", quantization="int8", int8_keep_mlp_float=True)` also keeps GELU-fed weighted projections in float, including the second layer of backbone MLPs. It recognizes both decomposed and native ONNX GELU.
 
+- `RFDETR.export()` moves the model back to its device when copying it for export fails. Export moves the model to the CPU before copying it, and a `deepcopy` that raised (an attribute that cannot be copied, host memory) or an out-of-memory error moving the copy to the GPU left the model on the CPU after the error, until the next `predict()`, `train()` or `evaluate()` moved it back.
+
 ## [1.12.1] — 2026-11-12
 
 ### Changed
